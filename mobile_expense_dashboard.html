@@ -20,6 +20,7 @@
         .card:hover {
             transform: translateY(-2px);
         }
+        /* Expense item alternating background for better readability */
         .expense-item:nth-child(odd) {
             background-color: #fefefe;
         }
@@ -42,51 +43,45 @@
         .collapsible-header:hover {
             background-color: #f7f7f7;
         }
+        /* Arrow rotation for indicating open/closed state */
         .rotate-90 {
             transform: rotate(90deg);
         }
-        
-        /* Removed .summary-card-enhanced custom styles */
+        /* Style for cards with the blue accent (consistent border and shadow) */
+        .blue-accent-card {
+            border: 1px solid rgb(191 219 254); /* light blue border (blue-200) */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05); /* enhanced shadow */
+        }
     </style>
 </head>
 <body class="min-h-screen">
 
     <div id="app" class="max-w-xl mx-auto p-4 md:p-6">
-        <!-- Header -->
+        <!-- Header: Font size reduced (text-lg) and color changed to blue (text-indigo-600) -->
         <header class="text-center mb-6">
-            <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight">Combined Expenses Tracker</h1>
-            <p id="month-header" class="text-sm text-gray-500 mt-1 font-semibold">Current Month: December 2025</p>
+            <h1 class="text-lg font-extrabold text-indigo-600 tracking-tight">Expense Tracker</h1>
+            <p class="text-sm text-gray-500 mt-1 font-semibold">Current Month: <span id="month-name" class="text-orange-500">December 2025</span></p>
         </header>
 
-        <!-- Quick Actions: Dashboard & Add Expense Form (Styled for Mobile) -->
-        <div class="flex justify-center space-x-4 mb-8">
-            <!-- Dashboard Link (Current Dashboard URL) -->
-            <!-- Note: The '#' is a placeholder. You will update this to your GitHub Pages URL after deployment. -->
-            <a href="#" class="flex flex-col items-center p-3 w-28 bg-white text-indigo-600 rounded-xl shadow-md hover:shadow-lg hover:bg-indigo-50 transition duration-200">
-                <!-- SVG for Dashboard Icon -->
-                <svg class="w-7 h-7 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                <span class="text-xs font-semibold">Dashboard</span>
-            </a>
-
-            <!-- Add Expense Form Link (Google Form URL) -->
-            <a href="https://docs.google.com/forms/d/1hnsgJRRX_1vcoo9bmIXVzTih__gkM_ltXX5DvxLtkGc/viewform" target="_blank" class="flex flex-col items-center p-3 w-28 bg-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl hover:bg-indigo-700 transition duration-200">
-                <!-- SVG for Add/Plus Icon -->
-                <svg class="w-7 h-7 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span class="text-xs font-semibold">Add Expense</span>
+        <!-- Quick Actions: Add Expense Form -->
+        <div class="flex justify-center mb-8">
+            <a href="https://docs.google.com/forms/d/1hnsgJRRX_1vcoo9bmIXVzTih__gkM_ltXX5DvxLtkGc/viewform" target="_blank" 
+               class="flex items-center justify-center p-3 w-48 bg-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl hover:bg-indigo-700 transition duration-200 space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-sm font-semibold">Add New Expense</span>
             </a>
         </div>
 
-        <!-- Current Month Summary Statistics Card (Reverted to basic styling) -->
-        <div class="bg-white card rounded-xl p-5 mb-6 text-center">
-            <!-- Total Expenses -->
+        <!-- Current Month Summary Statistics Card (BEIGE - Only this one) -->
+        <div class="bg-amber-50 card rounded-xl p-5 mb-6 text-center">
             <div>
                 <p class="text-xs font-medium text-gray-500 uppercase">Current Month Total Spent</p>
                 <p id="total-expenses" class="text-3xl font-extrabold text-indigo-600 mt-1">₹0.00</p>
             </div>
         </div>
 
-        <!-- Current Month Contribution Summary -->
-        <div class="bg-white card rounded-xl p-5 mb-6">
+        <!-- Current Month Contribution Summary (WHITE + BLUE ACCENT) -->
+        <div class="bg-white card rounded-xl p-5 mb-6 blue-accent-card">
             <h2 class="text-lg font-semibold text-gray-800 mb-3 border-b pb-2">Contribution Breakdown (This Month)</h2>
             <div class="flex justify-between items-center mb-2">
                 <span class="font-medium text-gray-700 flex items-center">
@@ -102,24 +97,33 @@
             </div>
         </div>
         
-        <!-- Monthly Budget Balance Card -->
-        <div class="bg-white card rounded-xl p-5 mb-6 border-4 border-dashed border-indigo-200">
+        <!-- Monthly Budget Balance Card (WHITE + BLUE ACCENT - NOW CONSISTENT) -->
+        <div class="bg-white card rounded-xl p-5 mb-6 blue-accent-card">
             <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2 flex justify-between items-center">
                 Monthly Budget Balance 
                 <span id="budget-amount-label" class="text-xs text-indigo-500 font-normal">Budget: ₹50,000</span>
             </h2>
             <div id="budget-balance-display" class="text-center p-2">
-                <p class="text-sm text-gray-500 mt-1">Remaining Available Balance</p>
+                <!-- Removed: 'Remaining Available Balance' text -->
                 <p id="available-balance-amount" class="text-3xl font-extrabold text-green-600 mt-1">₹50,000.00</p>
-                <p id="balance-message" class="text-xs text-gray-400 mt-2">Spending within limits.</p>
+                <!-- Removed: Budget status message -->
+                <!-- The JS logic to update this message is also removed -->
             </div>
         </div>
 
-        <!-- Current Month Expense List -->
-        <div class="bg-white card rounded-xl shadow-lg mb-6">
-            <h2 class="text-xl font-bold text-gray-800 p-4 border-b">Recent Transactions (This Month)</h2>
-            <div id="expense-list" class="divide-y divide-gray-100 custom-scrollbar max-h-96 overflow-y-auto">
-                <!-- Current month items will be injected here by JavaScript -->
+        <!-- Current Month Expense List (WHITE + BLUE ACCENT) -->
+        <div class="bg-white card rounded-xl shadow-lg mb-6 blue-accent-card">
+            <!-- Header that acts as the toggle button -->
+            <div id="transactions-header" class="collapsible-header p-4 flex justify-between items-center border-b">
+                <h2 class="text-xl font-bold text-gray-800">Recent Transactions (This Month)</h2>
+                <!-- Arrow: Default state (closed) - no rotate-90 class -->
+                <svg id="transactions-arrow" class="w-5 h-5 text-gray-500 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </div>
+            <!-- Content container: Default state is hidden -->
+            <div id="expense-list-content" class="hidden divide-y divide-gray-100 custom-scrollbar max-h-96 overflow-y-auto">
+                <!-- Loading indicator visible until data loads -->
                 <div id="loading-indicator" class="p-4 text-center text-gray-500">
                     <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo-500 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -127,11 +131,12 @@
                     </svg>
                     Loading data from Google Sheet...
                 </div>
+                <!-- Expense items will be injected here by JavaScript -->
             </div>
         </div>
         
-        <!-- Past Months Summary (Collapsible) -->
-        <div class="bg-white card rounded-xl shadow-lg">
+        <!-- Past Months Summary (WHITE + BLUE ACCENT) -->
+        <div class="bg-white card rounded-xl shadow-lg mb-6 blue-accent-card">
             <div id="history-header" class="collapsible-header p-4 flex justify-between items-center border-b">
                 <h2 class="text-lg font-semibold text-gray-800">Past Months History</h2>
                 <svg id="history-arrow" class="w-5 h-5 text-gray-500 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -157,20 +162,26 @@
         // --- END CONFIGURATION ---
 
         // DOM Elements
-        const EXPENSE_LIST = document.getElementById('expense-list');
+        const EXPENSE_LIST = document.getElementById('expense-list-content'); 
         const TOTAL_EXPENSES_ELEM = document.getElementById('total-expenses');
-        // Removed TRANSACTION_COUNT_ELEM
         const SUNNY_TOTAL_ELEM = document.getElementById('sunny-total');
         const DEEPAL_TOTAL_ELEM = document.getElementById('deepal-total');
         
         // New elements for Budget
         const AVAILABLE_BALANCE_ELEM = document.getElementById('available-balance-amount');
-        const BALANCE_MESSAGE_ELEM = document.getElementById('balance-message');
         const BUDGET_AMOUNT_LABEL = document.getElementById('budget-amount-label');
         
+        // The element for the budget message (BALANCE_MESSAGE_ELEM) is no longer used in the HTML/JS.
+        
         const LOADING_INDICATOR = document.getElementById('loading-indicator');
-        const MONTH_HEADER = document.getElementById('month-header');
+        const MONTH_NAME_ELEM = document.getElementById('month-name'); 
         const PAST_MONTHS_SUMMARY_ELEM = document.getElementById('past-months-summary');
+        
+        // New elements for Transactions Collapsible
+        const TRANSACTIONS_HEADER = document.getElementById('transactions-header');
+        const TRANSACTIONS_ARROW = document.getElementById('transactions-arrow');
+
+        // Existing elements for History Collapsible
         const HISTORY_HEADER = document.getElementById('history-header');
         const HISTORY_ARROW = document.getElementById('history-arrow');
 
@@ -311,12 +322,9 @@
         }
 
         function renderDashboard(expenses) {
-            // Remove loading indicator
-            if(LOADING_INDICATOR) LOADING_INDICATOR.remove();
-
-            if (expenses.length === 0) {
-                 EXPENSE_LIST.innerHTML = `<p class="p-4 text-center text-gray-500 italic">No expenses recorded yet.</p>`;
-                 return;
+            // Remove loading indicator when data is ready
+            if (EXPENSE_LIST.contains(LOADING_INDICATOR)) {
+                LOADING_INDICATOR.remove();
             }
 
             // Define the current month key (YYYY-MM)
@@ -324,7 +332,13 @@
             const currentMonthKey = today.getFullYear() + '-' + (today.getMonth() + 1).toString().padStart(2, '0');
             const currentMonthName = formatMonthKey(currentMonthKey);
             
-            MONTH_HEADER.textContent = `Current Month: ${currentMonthName}`;
+            // Set the orange month/year name
+            MONTH_NAME_ELEM.textContent = currentMonthName;
+
+            if (expenses.length === 0) {
+                 // Only show message if data is truly empty
+                 EXPENSE_LIST.innerHTML = `<p class="p-4 text-center text-gray-500 italic">No expenses recorded yet.</p>`;
+            }
 
 
             // 1. Group and calculate totals for all months
@@ -358,9 +372,9 @@
             const currentMonthData = monthlyData[currentMonthKey] || { total: 0, sunnyTotal: 0, deepalTotal: 0, transactions: [] };
             
             const previousMonthsKeys = Object.keys(monthlyData)
-                .filter(key => key !== currentMonthKey && key !== 'Invalid Date') // Exclude invalid dates
-                .sort() // Sort chronologically ascending
-                .reverse(); // Reverse to show newest previous month first
+                .filter(key => key !== currentMonthKey && key !== 'Invalid Date') 
+                .sort() 
+                .reverse(); 
 
 
             // 3. Render Current Month Summary
@@ -382,17 +396,17 @@
             if (availableBalance >= 0) {
                 // Under budget
                 AVAILABLE_BALANCE_ELEM.classList.add('text-green-600');
-                BALANCE_MESSAGE_ELEM.textContent = `You are ${formatCurrency(availableBalance)} under budget. Keep it up!`;
+                // Removed BALANCE_MESSAGE_ELEM.textContent update here
             } else {
                 // Over budget
                 AVAILABLE_BALANCE_ELEM.classList.add('text-red-600');
-                BALANCE_MESSAGE_ELEM.textContent = `You are ${formatCurrency(Math.abs(availableBalance))} over budget. Careful!`;
+                // Removed BALANCE_MESSAGE_ELEM.textContent update here
             }
             // --- END MONTHLY BUDGET BALANCE CALCULATION & RENDERING ---
 
 
             // 4. Render Current Month Transaction List
-            EXPENSE_LIST.innerHTML = '';
+            EXPENSE_LIST.innerHTML = ''; // Clear content first
             if (transactions.length === 0) {
                 EXPENSE_LIST.innerHTML = `<p class="p-4 text-center text-gray-500 italic">No expenses recorded for ${currentMonthName} yet.</p>`;
             } else {
@@ -408,12 +422,12 @@
                     const itemHtml = `
                         <div class="expense-item p-4 flex justify-between items-center transition duration-150 ease-in-out hover:bg-gray-50">
                             <div class="flex-1 min-w-0 pr-4">
-                                <p class="text-lg font-semibold text-gray-900 truncate">${expense.details}</p>
-                                <p class="mt-1 text-sm text-gray-500">Date: ${expense.dateString}</p>
+                                <p class="text-sm font-semibold text-gray-900 truncate">${expense.details}</p>
+                                <p class="mt-1 text-xs text-gray-500">Date: ${expense.dateString}</p>
                                 <span class="mt-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${colorClass} ring-1 ${ringColor}">${spenderText}</span>
                             </div>
                             <div class="text-right">
-                                <p class="text-xl font-extrabold text-gray-800">${formatCurrency(expense.amount)}</p>
+                                <p class="text-lg font-extrabold text-gray-800">${formatCurrency(expense.amount)}</p>
                             </div>
                         </div>
                     `;
@@ -465,6 +479,21 @@
         // COLLAPSIBLE LOGIC
         // ------------------------------------------
         
+        // Transaction List Collapsible Toggle
+        TRANSACTIONS_HEADER.addEventListener('click', () => {
+            const isClosed = EXPENSE_LIST.classList.contains('hidden'); // Check for the closed state
+            if (isClosed) {
+                // Open: remove 'hidden' class and rotate arrow
+                EXPENSE_LIST.classList.remove('hidden');
+                TRANSACTIONS_ARROW.classList.add('rotate-90');
+            } else {
+                // Close: add 'hidden' class and unrotate arrow
+                EXPENSE_LIST.classList.add('hidden');
+                TRANSACTIONS_ARROW.classList.remove('rotate-90');
+            }
+        });
+
+        // Past Months History Collapsible Toggle
         HISTORY_HEADER.addEventListener('click', () => {
             const isHidden = PAST_MONTHS_SUMMARY_ELEM.classList.contains('hidden');
             if (isHidden) {
