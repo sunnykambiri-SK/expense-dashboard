@@ -11,7 +11,12 @@
         /* Custom styles for a clean, mobile-first look */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6; /* Light gray background */
+            /* CHANGE: Poppy Background - Light Sky Blue */
+            background-color: #f0f9ff; /* bg-sky-50 - softer poppy */
+        }
+        .dashboard-bg {
+            /* Using a slightly darker sky blue for the main view background */
+            background-color: #e0f2fe; /* bg-sky-100 */
         }
         .card {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
@@ -52,81 +57,89 @@
             border: 1px solid rgb(191 219 254); /* light blue border (blue-200) */
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05); /* enhanced shadow */
         }
+        
+        /* Pie Chart Specific Styles */
+        .pie-chart-svg {
+            transform: rotate(-90deg); /* Start from the top */
+        }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen dashboard-bg">
 
     <div id="app" class="max-w-xl mx-auto p-4 md:p-6">
-        <!-- Header: Background changed to white with a thick indigo border -->
-        <header class="text-center mb-6 p-2 bg-white rounded-xl shadow-md border-4 border-indigo-600">
-            <!-- Title text changed back to indigo to match the border -->
+        <!-- Header -->
+        <header class="text-center mb-6 p-2 bg-white rounded-xl shadow-md border-2 border-indigo-600">
             <h1 class="text-xl font-extrabold text-indigo-700 tracking-tight">Expense Tracker</h1>
-            <!-- Month text remains visible -->
             <p class="text-sm text-gray-500 mt-1 font-semibold">Current Month: <span id="month-name" class="text-orange-600">December 2025</span></p>
         </header>
-
-        <!-- Quick Actions: Add Expense Form -->
-        <div class="flex justify-center mb-8">
-            <a href="https://docs.google.com/forms/d/1hnsgJRRX_1vcoo9bmIXVzTih__gkM_ltXX5DvxLtkGc/viewform" target="_blank" 
-               class="flex items-center justify-center p-3 w-48 bg-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl hover:bg-indigo-700 transition duration-200 space-x-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span class="text-sm font-semibold">Add New Expense</span>
-            </a>
-        </div>
 
         <!-- Current Month Summary Statistics Card (BEIGE) -->
         <div class="bg-amber-50 card rounded-xl p-5 mb-6 text-center">
             <div>
-                <!-- Label font size kept small (text-xs) -->
                 <p class="text-xs font-medium text-gray-500 uppercase">Current Month Total Spent</p>
-                <!-- Amount font size kept large for prominence (text-3xl) -->
                 <p id="total-expenses" class="text-3xl font-extrabold text-indigo-600 mt-1">₹0</p>
             </div>
         </div>
 
-        <!-- Current Month Contribution Summary (WHITE + BLUE ACCENT) -->
+        <!-- Monthly Budget Balance Card -->
         <div class="bg-white card rounded-xl p-5 mb-6 blue-accent-card">
-            <!-- Header font size reduced to text-base -->
-            <h2 class="text-base font-semibold text-gray-800 mb-3 border-b pb-2">Contribution Breakdown</h2>
-            <div class="flex justify-between items-center mb-2 text-sm">
-                <span class="font-medium text-gray-700 flex items-center">
-                    <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span> Sunny
-                </span>
-                <span id="sunny-total" class="font-bold text-green-600">₹0</span>
-            </div>
-            <div class="flex justify-between items-center text-sm">
-                <span class="font-medium text-gray-700 flex items-center">
-                    <span class="w-2 h-2 rounded-full bg-pink-500 mr-2"></span> Deepal
-                </span>
-                <span id="deepal-total" class="font-bold text-pink-600">₹0</span>
-            </div>
-        </div>
-        
-        <!-- Monthly Budget Balance Card (WHITE + BLUE ACCENT - Consistent) -->
-        <div class="bg-white card rounded-xl p-5 mb-6 blue-accent-card">
-            <!-- Header font size reduced to text-base -->
             <h2 class="text-base font-bold text-gray-800 mb-3 border-b pb-2 flex justify-between items-center">
                 Monthly Budget Balance 
                 <span id="budget-amount-label" class="text-xs text-indigo-500 font-normal">Budget: ₹50,000</span>
             </h2>
-            <div id="budget-balance-display" class="text-center p-2">
-                <!-- Balance amount font size kept large for visual impact -->
-                <p id="available-balance-amount" class="text-3xl font-extrabold text-green-600 mt-1">₹50,000</p>
+            <div id="budget-balance-display" class="text-center p-2 flex flex-col items-center">
+                <div class="flex items-center space-x-2">
+                    <span id="budget-status-icon" class="w-6 h-6"></span> 
+                    <p id="available-balance-amount" class="text-3xl font-extrabold mt-1">₹50,000</p>
+                </div>
             </div>
         </div>
 
-        <!-- Current Month Expense List (WHITE + BLUE ACCENT) -->
+        <!-- Current Month Contribution Summary (Pie Chart Added) -->
+        <div class="bg-white card rounded-xl p-5 mb-6 blue-accent-card">
+            <h2 class="text-base font-semibold text-gray-800 mb-3 border-b pb-2">Contribution Breakdown</h2>
+            <div class="flex justify-between items-center">
+                <!-- Left: Pie Chart Visualization -->
+                <div id="contribution-pie-chart" class="w-20 h-20 flex-shrink-0 mr-4">
+                    <!-- SVG Pie Chart will be injected here -->
+                </div>
+                <!-- Right: Text Totals -->
+                <div class="flex-grow">
+                    <div class="flex justify-between items-center mb-2 text-sm">
+                        <span class="font-medium text-gray-700 flex items-center">
+                            <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span> Sunny
+                        </span>
+                        <span id="sunny-total" class="font-bold text-green-600">₹0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="font-medium text-gray-700 flex items-center">
+                            <span class="w-2 h-2 rounded-full bg-pink-500 mr-2"></span> Deepal
+                        </span>
+                        <span id="deepal-total" class="font-bold text-pink-600">₹0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CHANGE: Last 7 Days Spends Trend (Micro-Chart) -->
+        <div class="bg-white card rounded-xl p-5 mb-6 blue-accent-card">
+            <h2 class="text-base font-semibold text-gray-800 mb-4 border-b pb-2">Last 7 Days Spends</h2>
+            <div id="spending-trend-chart" class="h-24 w-full flex items-end space-x-1 p-1">
+                <p id="trend-message" class="text-xs text-gray-500 w-full text-center">No recent spending in the last 7 days.</p>
+            </div>
+        </div>
+
+        <!-- Current Month Expense List -->
         <div class="bg-white card rounded-xl shadow-lg mb-6 blue-accent-card">
-            <!-- Header font size reduced to text-lg and "(This Month)" removed -->
             <div id="transactions-header" class="collapsible-header p-4 flex justify-between items-center border-b">
-                <h2 class="text-lg font-bold text-gray-800">Recent Transactions</h2>
+                <h2 class="text-base font-bold text-gray-800">Recent Transactions</h2>
+                <!-- Arrow starts non-rotated, indicating closed state -->
                 <svg id="transactions-arrow" class="w-5 h-5 text-gray-500 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
             </div>
-            <!-- Content container -->
+            <!-- Content container starts hidden by default -->
             <div id="expense-list-content" class="hidden divide-y divide-gray-100 custom-scrollbar max-h-96 overflow-y-auto">
-                <!-- Loading indicator -->
                 <div id="loading-indicator" class="p-4 text-center text-gray-500">
                     <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo-500 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -134,13 +147,11 @@
                     </svg>
                     Loading data from Google Sheet...
                 </div>
-                <!-- Expense items will be injected here by JavaScript -->
             </div>
         </div>
         
-        <!-- Past Months Summary (WHITE + BLUE ACCENT) -->
+        <!-- Past Months Summary -->
         <div class="bg-white card rounded-xl shadow-lg mb-6 blue-accent-card">
-            <!-- Header font size reduced to text-base -->
             <div id="history-header" class="collapsible-header p-4 flex justify-between items-center border-b">
                 <h2 class="text-base font-semibold text-gray-800">Past Months History</h2>
                 <svg id="history-arrow" class="w-5 h-5 text-gray-500 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -148,7 +159,6 @@
                 </svg>
             </div>
             <div id="past-months-summary" class="hidden divide-y divide-gray-100">
-                <!-- Past months summaries will be injected here -->
                 <p id="history-message" class="p-4 text-center text-sm text-gray-500 italic">No previous months found.</p>
             </div>
         </div>
@@ -158,11 +168,17 @@
         <p class="text-center text-xs text-gray-400 mt-6">Data is fetched in real-time from your published Google Sheet.</p>
     </div>
 
+    <!-- Floating Action Button (FAB) for adding expenses -->
+    <a href="https://docs.google.com/forms/d/1hnsgJRRX_1vcoo9bmIXVzTih__gkM_ltXX5DvxLtkGc/viewform" target="_blank" 
+       class="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 bg-indigo-600 text-white rounded-full shadow-2xl hover:bg-indigo-700 transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-indigo-300">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+    </a>
+
     <script>
         // --- CONFIGURATION ---
-        // Direct CSV Publication Link provided by the user. This is the most reliable method.
         const G_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSg2yv6cZgH_d8f7gFlb3P44ZO3_DubKK0kzmnlDYdOkB2hWwv3TVUWUPnywnhG-_ECKvqUE21-aCRC/pub?gid=328285984&single=true&output=csv";
-        const MONTHLY_BUDGET = 50000; // User specified budget in INR (₹50,000)
+        const MONTHLY_BUDGET = 50000; 
+        const DAILY_CHART_BUDGET = 2000; // NEW: Daily budget for the 7-day chart
         // --- END CONFIGURATION ---
 
         // DOM Elements
@@ -173,10 +189,13 @@
         
         const AVAILABLE_BALANCE_ELEM = document.getElementById('available-balance-amount');
         const BUDGET_AMOUNT_LABEL = document.getElementById('budget-amount-label');
+        const BUDGET_STATUS_ICON_ELEM = document.getElementById('budget-status-icon');
+        const PIE_CHART_ELEM = document.getElementById('contribution-pie-chart'); // NEW
         
         const LOADING_INDICATOR = document.getElementById('loading-indicator');
         const MONTH_NAME_ELEM = document.getElementById('month-name'); 
         const PAST_MONTHS_SUMMARY_ELEM = document.getElementById('past-months-summary');
+        const CHART_ELEM = document.getElementById('spending-trend-chart'); 
         
         const TRANSACTIONS_HEADER = document.getElementById('transactions-header');
         const TRANSACTIONS_ARROW = document.getElementById('transactions-arrow');
@@ -188,39 +207,29 @@
         // UTILITY FUNCTIONS
         // ------------------------------------------
 
-        /**
-         * Parses CSV data from the Google Sheet pub?output=csv format.
-         * Assumes the following COLUMN ORDER (indices) based on user confirmation that the date is in Column 5: 
-         * [0] Timestamp (Auto-generated), [1] Details, [2] Amount, [3] Entered By, [4] Date of Expense (User Input)
-         */
         function parseCSV(text) {
             const lines = text.trim().split('\n').filter(line => line.trim() !== '');
-            if (lines.length <= 1) return []; // Only header or empty
+            if (lines.length <= 1) return []; 
 
             const parsedExpenses = [];
             
-            // Skip header (index 0) and iterate through data rows (index 1 onwards)
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i];
 
-                // Robustly split CSV line
                 const cells = line.match(/("([^"]*)"|[^,]+)(,|$)/g)
-                    .map(cell => cell.replace(/,$/, '')) // Remove trailing comma
-                    .map(cell => cell.replace(/^"|"$/g, '')); // Remove surrounding quotes
+                    .map(cell => cell.replace(/,$/, '')) 
+                    .map(cell => cell.replace(/^"|"$/g, ''));
 
-                // We expect at least 5 columns: Timestamp, Details, Amount, Entered By, Date
                 if (cells.length < 5) continue; 
                 
-                // CRITICAL CHANGE: Use the user-provided date field (Index 4, Column 5).
-                // Fallback to Timestamp (Index 0) only if the user date field is empty.
-                const userDateInput = cells[4].trim(); // Index 4 is the confirmed column 5
+                const userDateInput = cells[4].trim(); 
                 const dateOfExpense = userDateInput !== '' ? userDateInput : cells[0];
 
                 const expense = {
                     dateString: dateOfExpense || 'N/A', 
-                    details: cells[1] || 'No Details', // Index 1
-                    amount: parseFloat(cells[2].replace(/[^0-9.]/g, '')) || 0, // Index 2
-                    enteredBy: cells[3] ? cells[3].trim() : 'Unknown' // Index 3
+                    details: cells[1] || 'No Details',
+                    amount: parseFloat(cells[2].replace(/[^0-9.]/g, '')) || 0,
+                    enteredBy: cells[3] ? cells[3].trim() : 'Unknown'
                 };
                 
                 if (expense.amount > 0) {
@@ -232,15 +241,13 @@
         }
 
         /**
-         * Extracts a YYYY-MM key from the date string for grouping.
-         * The date format from CSV is typically MM/DD/YYYY or MM/DD/YYYY HH:MM:SS
+         * Extracts a YYYY-MM key from the date string.
          */
         function getExpenseMonthKey(dateString) {
             try {
-                // Determine if the string is just a date (MM/DD/YYYY) or a timestamp
-                const parts = dateString.includes(' ') 
-                    ? dateString.split(' ')[0].split('/') // Timestamp: use date part (MM/DD/YYYY)
-                    : dateString.split('/'); // Date only (MM/DD/YYYY)
+                // Assuming MM/DD/YYYY format for date input
+                const datePart = dateString.split(' ')[0];
+                const parts = datePart.split('/');
                 
                 if (parts.length === 3) {
                     const month = parts[0];
@@ -254,14 +261,38 @@
         }
 
         /**
+         * Converts date string (MM/DD/YYYY or MM/DD/YYYY HH:MM:SS) to YYYY-MM-DD format for comparison.
+         */
+        function normalizeDate(dateString) {
+            try {
+                const datePart = dateString.split(' ')[0];
+                const parts = datePart.split('/'); // MM/DD/YYYY
+                if (parts.length === 3) {
+                    return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+                }
+            } catch (e) {
+                return null;
+            }
+            return null;
+        }
+        
+        /**
+         * Formats YYYY-MM-DD to DD/MM.
+         */
+        function formatDayKey(normalizedDate) {
+             const parts = normalizedDate.split('-'); // YYYY-MM-DD
+             return `${parts[2]}/${parts[1]}`; // DD/MM
+        }
+        
+        /**
          * Formats a number as Indian Rupees (INR), now without decimals.
          */
         function formatCurrency(amount) {
             return new Intl.NumberFormat('en-IN', {
                 style: 'currency',
                 currency: 'INR',
-                minimumFractionDigits: 0, // Set to 0 to remove decimals
-                maximumFractionDigits: 0, // Ensure no decimals are shown
+                minimumFractionDigits: 0, 
+                maximumFractionDigits: 0, 
             }).format(amount);
         }
         
@@ -271,9 +302,129 @@
         function formatMonthKey(key) {
             const [year, month] = key.split('-');
             if (!year || !month) return key;
-            // Note: Date constructor uses 0-indexed months, so -1 is required
             const date = new Date(year, parseInt(month) - 1, 1); 
             return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+        }
+        
+        // ------------------------------------------
+        // CHART RENDERING FUNCTIONS (NEW/UPDATED)
+        // ------------------------------------------
+
+        /**
+         * Renders a simple SVG pie chart for contribution split.
+         */
+        function renderPieChart(sunnyTotal, deepalTotal) {
+            const total = sunnyTotal + deepalTotal;
+            PIE_CHART_ELEM.innerHTML = ''; // Clear previous chart
+
+            if (total === 0) {
+                PIE_CHART_ELEM.innerHTML = `<div class="w-full h-full text-center text-xs text-gray-400 flex items-center justify-center">No data</div>`;
+                return;
+            }
+
+            const sunnyRatio = sunnyTotal / total;
+            const sunnyPercent = Math.round(sunnyRatio * 100);
+            
+            // Circumference of a circle with radius 35 (2 * PI * 35 = ~219.9)
+            const circumference = 219.9; 
+            const sunnyDash = circumference * sunnyRatio;
+            const deepalDash = circumference - sunnyDash;
+
+            const svg = `
+                <svg viewBox="0 0 80 80" class="pie-chart-svg w-full h-full">
+                    <!-- Background circle for Deepal (Pink) -->
+                    <circle cx="40" cy="40" r="35" fill="none" stroke="#f472b6" stroke-width="10" />
+
+                    <!-- Sunny's contribution (Green) - uses stroke-dasharray to define segment -->
+                    <circle cx="40" cy="40" r="35" fill="none" stroke="#10b981" stroke-width="10" 
+                        stroke-dasharray="${sunnyDash} ${deepalDash}" 
+                        stroke-dashoffset="0" />
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-700">${sunnyPercent}%</div>
+            `;
+
+            PIE_CHART_ELEM.classList.add('relative');
+            PIE_CHART_ELEM.innerHTML = svg;
+        }
+
+        /**
+         * Processes data and renders the Last 7 Days Spends chart.
+         */
+        function renderDailyTrendChart(expenses) {
+            CHART_ELEM.innerHTML = '';
+            
+            const daysData = {};
+            const MS_PER_DAY = 24 * 60 * 60 * 1000;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize to start of today
+
+            // 1. Initialize data for the last 7 calendar days (including today)
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(today.getTime() - i * MS_PER_DAY);
+                const normalizedKey = normalizeDate(d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }));
+                
+                // Only include the key if it's a valid date
+                if (normalizedKey) {
+                    daysData[normalizedKey] = {
+                        total: 0,
+                        dateKey: normalizedKey,
+                        label: formatDayKey(normalizedKey)
+                    };
+                }
+            }
+
+            // 2. Aggregate expenses for the last 7 days
+            expenses.forEach(expense => {
+                const normalizedKey = normalizeDate(expense.dateString);
+                if (normalizedKey && daysData.hasOwnProperty(normalizedKey)) {
+                    daysData[normalizedKey].total += expense.amount;
+                }
+            });
+            
+            // 3. Prepare data array (sorted oldest to newest)
+            const sortedKeys = Object.keys(daysData).sort();
+            const trendData = sortedKeys.map(key => daysData[key]);
+
+            if (trendData.length === 0) {
+                 CHART_ELEM.innerHTML = `<p id="trend-message" class="text-xs text-gray-500 w-full text-center">No recent spending in the last 7 days.</p>`;
+                 CHART_ELEM.classList.remove('relative');
+                 return;
+            }
+
+            // 4. Render Chart
+            const maxSpending = Math.max(DAILY_CHART_BUDGET, ...trendData.map(d => d.total));
+            const budgetLineHeight = (DAILY_CHART_BUDGET / maxSpending) * 90; // Use 90% max height for bars
+            const barWidth = `${100 / trendData.length - 2}%`; 
+
+            CHART_ELEM.classList.add('relative');
+            
+            // Draw Budget Line (Rs. 2000)
+            const budgetLineHtml = `
+                <div class="absolute w-full border-t border-dashed border-red-400 z-10 top-0" style="height: 1px; top: ${95 - budgetLineHeight}%;" title="Daily Budget: ${formatCurrency(DAILY_CHART_BUDGET)}">
+                    <span class="absolute right-0 -top-2 text-xs font-medium text-red-500 bg-white px-1 rounded">₹2K Limit</span>
+                </div>
+            `;
+            CHART_ELEM.innerHTML += budgetLineHtml;
+
+            trendData.forEach(data => {
+                const heightPercentage = (data.total / maxSpending) * 90; 
+                
+                // Logic for red/green color based on the 2000 limit
+                const isOverBudget = data.total > DAILY_CHART_BUDGET;
+                const barColor = isOverBudget ? 'bg-red-500' : 'bg-green-500';
+                const labelColor = isOverBudget ? 'text-red-600 font-bold' : 'text-gray-500';
+                
+                const barHtml = `
+                    <div class="flex flex-col items-center justify-end h-full flex-grow mx-1" style="width: ${barWidth};">
+                        <div class="w-full rounded-t-md ${barColor} transition-all duration-500 hover:opacity-75 shadow-md" 
+                             style="height: ${heightPercentage}%;"
+                             title="${data.label}: ${formatCurrency(data.total)}">
+                        </div>
+                        <span class="text-xs ${labelColor} mt-1">${data.label}</span>
+                    </div>
+                `;
+                CHART_ELEM.insertAdjacentHTML('beforeend', barHtml);
+            });
         }
         
         // ------------------------------------------
@@ -282,7 +433,6 @@
 
         async function fetchExpenses() {
             try {
-                // Fetch logic with exponential backoff for retries
                 const maxRetries = 3;
                 let delay = 1000;
                 let response;
@@ -311,6 +461,7 @@
 
                 const expenses = parseCSV(rawText);
                 renderDashboard(expenses);
+                renderDailyTrendChart(expenses); // NEW: Render daily chart separately
 
             } catch (error) {
                 console.error("Error fetching or parsing data:", error);
@@ -322,24 +473,19 @@
         }
 
         function renderDashboard(expenses) {
-            // Remove loading indicator when data is ready
             if (EXPENSE_LIST.contains(LOADING_INDICATOR)) {
                 LOADING_INDICATOR.remove();
             }
 
-            // Define the current month key (YYYY-MM)
             const today = new Date();
             const currentMonthKey = today.getFullYear() + '-' + (today.getMonth() + 1).toString().padStart(2, '0');
             const currentMonthName = formatMonthKey(currentMonthKey);
             
-            // Set the orange month/year name
             MONTH_NAME_ELEM.textContent = currentMonthName;
 
             if (expenses.length === 0) {
-                 // Only show message if data is truly empty
                  EXPENSE_LIST.innerHTML = `<p class="p-4 text-center text-gray-500 italic">No expenses recorded yet.</p>`;
             }
-
 
             // 1. Group and calculate totals for all months
             const monthlyData = {};
@@ -368,7 +514,6 @@
                 }
             });
 
-            // 2. Separate current month and previous months
             const currentMonthData = monthlyData[currentMonthKey] || { total: 0, sunnyTotal: 0, deepalTotal: 0, transactions: [] };
             
             const previousMonthsKeys = Object.keys(monthlyData)
@@ -377,38 +522,45 @@
                 .reverse(); 
 
 
-            // 3. Render Current Month Summary
+            // 2. Render Current Month Summary & Budget
             const { total, sunnyTotal, deepalTotal, transactions } = currentMonthData;
 
             TOTAL_EXPENSES_ELEM.textContent = formatCurrency(total);
             SUNNY_TOTAL_ELEM.textContent = formatCurrency(sunnyTotal);
             DEEPAL_TOTAL_ELEM.textContent = formatCurrency(deepalTotal);
+
+            // Render the new Pie Chart
+            renderPieChart(sunnyTotal, deepalTotal);
             
-            // --- MONTHLY BUDGET BALANCE CALCULATION & RENDERING ---
             const availableBalance = MONTHLY_BUDGET - total;
             
             AVAILABLE_BALANCE_ELEM.textContent = formatCurrency(Math.abs(availableBalance));
             BUDGET_AMOUNT_LABEL.textContent = `Budget: ${formatCurrency(MONTHLY_BUDGET)}`;
 
-            // Reset classes
             AVAILABLE_BALANCE_ELEM.classList.remove('text-green-600', 'text-red-600', 'text-gray-600');
+            BUDGET_STATUS_ICON_ELEM.innerHTML = ''; 
 
             if (availableBalance >= 0) {
-                // Under budget
                 AVAILABLE_BALANCE_ELEM.classList.add('text-green-600');
+                BUDGET_STATUS_ICON_ELEM.innerHTML = `
+                    <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                `;
             } else {
-                // Over budget
                 AVAILABLE_BALANCE_ELEM.classList.add('text-red-600');
+                BUDGET_STATUS_ICON_ELEM.innerHTML = `
+                    <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                `;
             }
-            // --- END MONTHLY BUDGET BALANCE CALCULATION & RENDERING ---
 
-
-            // 4. Render Current Month Transaction List
-            EXPENSE_LIST.innerHTML = ''; // Clear content first
+            // 3. Render Current Month Transaction List
+            EXPENSE_LIST.innerHTML = ''; 
             if (transactions.length === 0) {
                 EXPENSE_LIST.innerHTML = `<p class="p-4 text-center text-gray-500 italic">No expenses recorded for ${currentMonthName} yet.</p>`;
             } else {
-                // Sort transactions by date (newest first)
                 transactions.sort((a, b) => new Date(b.dateString) - new Date(a.dateString));
 
                 transactions.forEach(expense => {
@@ -420,13 +572,11 @@
                     const itemHtml = `
                         <div class="expense-item p-4 flex justify-between items-center transition duration-150 ease-in-out hover:bg-gray-50">
                             <div class="flex-1 min-w-0 pr-4">
-                                <!-- Details font size reduced to text-xs -->
                                 <p class="text-xs font-semibold text-gray-900 truncate">${expense.details}</p>
                                 <p class="mt-1 text-xs text-gray-500">Date: ${expense.dateString}</p>
                                 <span class="mt-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${colorClass} ring-1 ${ringColor}">${spenderText}</span>
                             </div>
                             <div class="text-right">
-                                <!-- Amount font size reduced to text-base -->
                                 <p class="text-base font-extrabold text-gray-800">${formatCurrency(expense.amount)}</p>
                             </div>
                         </div>
@@ -434,39 +584,33 @@
                     EXPENSE_LIST.insertAdjacentHTML('beforeend', itemHtml);
                 });
             }
-
-            // 5. Render Past Months Summary (Updated with color coding)
+            
+            // 4. Render Past Months Summary
             PAST_MONTHS_SUMMARY_ELEM.innerHTML = '';
             if (previousMonthsKeys.length === 0) {
                 PAST_MONTHS_SUMMARY_ELEM.innerHTML = `<p class="p-4 text-center text-sm text-gray-500 italic">No previous months found.</p>`;
             } else {
                 previousMonthsKeys.forEach(key => {
                     const data = monthlyData[key];
-                    
-                    // Budget Status for past months
                     const pastAvailableBalance = MONTHLY_BUDGET - data.total;
                     let budgetMessage = '';
-                    let budgetClass = 'text-gray-600'; // Default safety
+                    let budgetClass = 'text-gray-600';
 
                     if (pastAvailableBalance >= 0) {
-                         // Under budget (Savings)
                          budgetMessage = `Spent ${formatCurrency(data.total)} (Under budget by ${formatCurrency(pastAvailableBalance)})`;
                          budgetClass = 'text-green-600';
                     } else {
-                         // Over budget
                          budgetMessage = `Spent ${formatCurrency(data.total)} (OVER budget by ${formatCurrency(Math.abs(pastAvailableBalance))})`;
                          budgetClass = 'text-red-600';
                     }
 
                     const itemHtml = `
                         <div class="p-4 text-sm bg-gray-50">
-                            <!-- Header font size reduced to text-sm -->
                             <h3 class="font-bold text-gray-800 mb-1 text-sm">${data.name}</h3>
                             <div class="flex justify-between items-center text-xs text-gray-600 mb-1">
                                 <span>Sunny Spent: <span class="text-green-600 font-semibold">${formatCurrency(data.sunnyTotal)}</span></span>
                                 <span>Deepal Spent: <span class="text-pink-600 font-semibold">${formatCurrency(data.deepalTotal)}</span></span>
                             </div>
-                            <!-- Applying dynamic color class -->
                             <p class="text-xs font-semibold ${budgetClass}">${budgetMessage}</p>
                         </div>
                     `;
@@ -481,13 +625,11 @@
         
         // Transaction List Collapsible Toggle
         TRANSACTIONS_HEADER.addEventListener('click', () => {
-            const isClosed = EXPENSE_LIST.classList.contains('hidden'); // Check for the closed state
+            const isClosed = EXPENSE_LIST.classList.contains('hidden'); 
             if (isClosed) {
-                // Open: remove 'hidden' class and rotate arrow
                 EXPENSE_LIST.classList.remove('hidden');
                 TRANSACTIONS_ARROW.classList.add('rotate-90');
             } else {
-                // Close: add 'hidden' class and unrotate arrow
                 EXPENSE_LIST.classList.add('hidden');
                 TRANSACTIONS_ARROW.classList.remove('rotate-90');
             }
@@ -508,6 +650,7 @@
         // Initialize fetching on page load
         window.onload = function() {
             fetchExpenses();
+            // REMOVED: Default open for transactions. It is now closed by default.
         }
     </script>
 </body>
