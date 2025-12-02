@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joint Expense Dashboard</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for a clean, mobile-first look */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+        }
+        .card {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        .expense-item:nth-child(odd) {
+            background-color: #fefefe;
+        }
+        .expense-item:nth-child(even) {
+            background-color: #ffffff;
+        }
+        /* Custom scrollbar for better mobile feel */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .collapsible-header {
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.15s;
+        }
+        .collapsible-header:hover {
+            background-color: #f7f7f7;
+        }
+        .rotate-90 {
+            transform: rotate(90deg);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <div id="app" class="max-w-xl mx-auto p-4 md:p-6">
+        <!-- Header -->
+        <header class="text-center mb-6">
+            <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight">Combined Expenses Tracker</h1>
+            <p id="month-header" class="text-sm text-gray-500 mt-1 font-semibold">Current Month: December 2025</p>
+        </header>
+
+        <!-- Current Month Summary Statistics Card -->
+        <div class="bg-white card rounded-xl p-5 mb-6 grid grid-cols-2 gap-4">
+            <!-- Total Expenses -->
+            <div class="border-r pr-4">
+                <p class="text-xs font-medium text-gray-500 uppercase">Current Month Total</p>
+                <p id="total-expenses" class="text-2xl font-bold text-indigo-600 mt-1">₹0.00</p>
+            </div>
+            <!-- Total Transactions -->
+            <div class="pl-4">
+                <p id="transaction-count-label" class="text-xs font-medium text-gray-500 uppercase">Transactions</p>
+                <p id="transaction-count" class="text-2xl font-bold text-gray-800 mt-1">0</p>
+            </div>
+        </div>
+
+        <!-- Current Month Contribution Summary -->
+        <div class="bg-white card rounded-xl p-5 mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-3 border-b pb-2">Contribution Breakdown (This Month)</h2>
+            <div class="flex justify-between items-center mb-2">
+                <span class="font-medium text-gray-700 flex items-center">
+                    <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span> Sunny
+                </span>
+                <span id="sunny-total" class="font-bold text-green-600">₹0.00</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="font-medium text-gray-700 flex items-center">
+                    <span class="w-2 h-2 rounded-full bg-pink-500 mr-2"></span> Deepal
+                </span>
+                <span id="deepal-total" class="font-bold text-pink-600">₹0.00</span>
+            </div>
+        </div>
+
+        <!-- Current Month Expense List -->
+        <div class="bg-white card rounded-xl shadow-lg mb-6">
+            <h2 class="text-xl font-bold text-gray-800 p-4 border-b">Recent Transactions (This Month)</h2>
+            <div id="expense-list" class="divide-y divide-gray-100 custom-scrollbar max-h-96 overflow-y-auto">
+                <!-- Current month items will be injected here by JavaScript -->
+                <div id="loading-indicator" class="p-4 text-center text-gray-500">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo-500 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Loading data from Google Sheet...
+                </div>
+            </div>
+        </div>
+        
+        <!-- Past Months Summary (Collapsible) -->
+        <div class="bg-white card rounded-xl shadow-lg">
+            <div id="history-header" class="collapsible-header p-4 flex justify-between items-center border-b">
+                <h2 class="text-lg font-semibold text-gray-800">Past Months History</h2>
+                <svg id="history-arrow" class="w-5 h-5 text-gray-500 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </div>
+            <div id="past-months-summary" class="hidden divide-y divide-gray-100">
+                <!-- Past months summaries will be injected here -->
+                <p id="history-message" class="p-4 text-center text-sm text-gray-500 italic">No previous months found.</p>
+            </div>
+        </div>
+
+
+        <!-- Footer Note -->
+        <p class="text-center text-xs text-gray-400 mt-6">Data is fetched in real-time from your published Google Sheet.</p>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        // Direct CSV Publication Link provided by the user. This is the most reliable method.
+        const G_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSg2yv6cZgH_d8f7gFlb3P44ZO3_DubKK0kzmnlDYdOkB2hWwv3TVUWUPnywnhG-_ECKvqUE21-aCRC/pub?gid=328285984&single=true&output=csv";
+        // --- END CONFIGURATION ---
+
+        // DOM Elements
+        const EXPENSE_LIST = document.getElementById('expense-list');
+        const TOTAL_EXPENSES_ELEM = document.getElementById('total-expenses');
+        const TRANSACTION_COUNT_ELEM = document.getElementById('transaction-count');
+        const SUNNY_TOTAL_ELEM = document.getElementById('sunny-total');
+        const DEEPAL_TOTAL_ELEM = document.getElementById('deepal-total');
+        const LOADING_INDICATOR = document.getElementById('loading-indicator');
+        const MONTH_HEADER = document.getElementById('month-header');
+        const PAST_MONTHS_SUMMARY_ELEM = document.getElementById('past-months-summary');
+        const HISTORY_HEADER = document.getElementById('history-header');
+        const HISTORY_ARROW = document.getElementById('history-arrow');
+
+        // ------------------------------------------
+        // UTILITY FUNCTIONS
+        // ------------------------------------------
+
+        /**
+         * Parses CSV data from the Google Sheet pub?output=csv format.
+         * Assumes the following column order: Timestamp, Expense Details, Amount, Entered By
+         */
+        function parseCSV(text) {
+            const lines = text.trim().split('\n').filter(line => line.trim() !== '');
+            if (lines.length <= 1) return []; // Only header or empty
+
+            const parsedExpenses = [];
+            
+            // Skip header (index 0) and iterate through data rows (index 1 onwards)
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+
+                // Robustly split CSV line, handling fields enclosed in double quotes (which Google's CSV output does)
+                const cells = line.match(/("([^"]*)"|[^,]+)(,|$)/g)
+                    .map(cell => cell.replace(/,$/, '')) // Remove trailing comma
+                    .map(cell => cell.replace(/^"|"$/g, '')); // Remove surrounding quotes
+
+                if (cells.length < 4) continue; // Skip incomplete rows
+
+                // Map CSV indices to expense properties:
+                // cells[0]: Timestamp, cells[1]: Details, cells[2]: Amount, cells[3]: Entered By
+                
+                const expense = {
+                    dateString: cells[0] || 'N/A', 
+                    details: cells[1] || 'No Details', 
+                    amount: parseFloat(cells[2].replace(/[^0-9.]/g, '')) || 0, 
+                    enteredBy: cells[3] ? cells[3].trim() : 'Unknown'
+                };
+                
+                if (expense.amount > 0) {
+                    parsedExpenses.push(expense);
+                }
+            }
+
+            return parsedExpenses;
+        }
+
+        /**
+         * Extracts a YYYY-MM key from the date string for grouping.
+         * The date format from CSV is typically MM/DD/YYYY HH:MM:SS
+         */
+        function getExpenseMonthKey(dateString) {
+            try {
+                // Parse date string (e.g., "12/2/2025 10:28:00")
+                const parts = dateString.split(' ')[0].split('/');
+                if (parts.length === 3) {
+                    const month = parts[0];
+                    const year = parts[2];
+                    return `${year}-${month.padStart(2, '0')}`;
+                }
+            } catch (e) {
+                console.error("Error parsing date:", dateString, e);
+            }
+            return 'Invalid Date';
+        }
+
+        /**
+         * Formats a number as Indian Rupees (INR).
+         */
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                minimumFractionDigits: 2,
+            }).format(amount);
+        }
+        
+        /**
+         * Formats a YYYY-MM key into a human-readable month/year.
+         */
+        function formatMonthKey(key) {
+            const [year, month] = key.split('-');
+            if (!year || !month) return key;
+            const date = new Date(year, parseInt(month) - 1, 1);
+            return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+        }
+        
+        // ------------------------------------------
+        // DATA FETCHING & RENDERING
+        // ------------------------------------------
+
+        async function fetchExpenses() {
+            try {
+                // Fetch logic with exponential backoff for retries
+                const maxRetries = 3;
+                let delay = 1000;
+                let response;
+
+                for (let i = 0; i < maxRetries; i++) {
+                    try {
+                        response = await fetch(G_SHEET_URL);
+                        if (response.ok) break; 
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    } catch (error) {
+                        if (i === maxRetries - 1) throw error; 
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2; 
+                    }
+                }
+
+                const rawText = await response.text();
+                
+                if (rawText.includes("<html")) {
+                     LOADING_INDICATOR.innerHTML = `
+                        <div class="text-red-600 font-bold text-center mb-2">ACCESS DENIED / PUBLICATION ERROR</div>
+                        <p class="text-sm text-gray-700 text-center">Data access failed. Please ensure the sheet is published as **Comma-separated values (.csv)** and the link is correct.</p>
+                    `;
+                    return;
+                }
+
+                const expenses = parseCSV(rawText);
+                renderDashboard(expenses);
+
+            } catch (error) {
+                console.error("Error fetching or parsing data:", error);
+                LOADING_INDICATOR.innerHTML = `
+                    <div class="text-red-600 font-bold">Failed to Load Data</div>
+                    A general error occurred. Check the browser console for details or verify the sheet's public access and format.
+                `;
+            }
+        }
+
+        function renderDashboard(expenses) {
+            // Remove loading indicator
+            LOADING_INDICATOR.remove();
+
+            if (expenses.length === 0) {
+                 EXPENSE_LIST.innerHTML = `<p class="p-4 text-center text-gray-500 italic">No expenses recorded yet.</p>`;
+                 return;
+            }
+
+            // Define the current month key (YYYY-MM)
+            const today = new Date();
+            const currentMonthKey = today.getFullYear() + '-' + (today.getMonth() + 1).toString().padStart(2, '0');
+            const currentMonthName = formatMonthKey(currentMonthKey);
+            
+            MONTH_HEADER.textContent = `Current Month: ${currentMonthName}`;
+
+
+            // 1. Group and calculate totals for all months
+            const monthlyData = {};
+
+            expenses.forEach(expense => {
+                const monthKey = getExpenseMonthKey(expense.dateString);
+                
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = {
+                        total: 0,
+                        sunnyTotal: 0,
+                        deepalTotal: 0,
+                        transactions: [],
+                        key: monthKey,
+                        name: formatMonthKey(monthKey)
+                    };
+                }
+
+                monthlyData[monthKey].total += expense.amount;
+                monthlyData[monthKey].transactions.push(expense);
+                
+                if (expense.enteredBy === 'Sunny') {
+                    monthlyData[monthKey].sunnyTotal += expense.amount;
+                } else if (expense.enteredBy === 'Deepal') {
+                    monthlyData[monthKey].deepalTotal += expense.amount;
+                }
+            });
+
+            // 2. Separate current month and previous months
+            const currentMonthData = monthlyData[currentMonthKey] || { total: 0, sunnyTotal: 0, deepalTotal: 0, transactions: [] };
+            
+            const previousMonthsKeys = Object.keys(monthlyData)
+                .filter(key => key !== currentMonthKey)
+                .sort() // Sort chronologically ascending
+                .reverse(); // Reverse to show newest previous month first
+
+
+            // 3. Render Current Month Summary
+            const { total, sunnyTotal, deepalTotal, transactions } = currentMonthData;
+
+            TOTAL_EXPENSES_ELEM.textContent = formatCurrency(total);
+            TRANSACTION_COUNT_ELEM.textContent = transactions.length;
+            SUNNY_TOTAL_ELEM.textContent = formatCurrency(sunnyTotal);
+            DEEPAL_TOTAL_ELEM.textContent = formatCurrency(deepalTotal);
+
+            // 4. Render Current Month Transaction List
+            EXPENSE_LIST.innerHTML = '';
+            if (transactions.length === 0) {
+                EXPENSE_LIST.innerHTML = `<p class="p-4 text-center text-gray-500 italic">No expenses recorded for ${currentMonthName} yet.</p>`;
+            } else {
+                // Sort transactions by date (newest first)
+                transactions.sort((a, b) => new Date(b.dateString) - new Date(a.dateString));
+
+                transactions.forEach(expense => {
+                    const isSunny = expense.enteredBy === 'Sunny';
+                    const colorClass = isSunny ? 'text-green-600 bg-green-50' : 'text-pink-600 bg-pink-50';
+                    const ringColor = isSunny ? 'ring-green-300' : 'ring-pink-300';
+                    const spenderText = expense.enteredBy;
+
+                    const itemHtml = `
+                        <div class="expense-item p-4 flex justify-between items-center transition duration-150 ease-in-out hover:bg-gray-50">
+                            <div class="flex-1 min-w-0 pr-4">
+                                <p class="text-lg font-semibold text-gray-900 truncate">${expense.details}</p>
+                                <p class="mt-1 text-sm text-gray-500">${expense.dateString}</p>
+                                <span class="mt-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${colorClass} ring-1 ${ringColor}">${spenderText}</span>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xl font-extrabold text-gray-800">${formatCurrency(expense.amount)}</p>
+                            </div>
+                        </div>
+                    `;
+                    EXPENSE_LIST.insertAdjacentHTML('beforeend', itemHtml);
+                });
+            }
+
+            // 5. Render Past Months Summary
+            PAST_MONTHS_SUMMARY_ELEM.innerHTML = '';
+            if (previousMonthsKeys.length === 0) {
+                PAST_MONTHS_SUMMARY_ELEM.innerHTML = `<p class="p-4 text-center text-sm text-gray-500 italic">No previous months found.</p>`;
+            } else {
+                previousMonthsKeys.forEach(key => {
+                    const data = monthlyData[key];
+                    
+                    const itemHtml = `
+                        <div class="p-4 text-sm bg-gray-50">
+                            <h3 class="font-bold text-gray-800 mb-1">${data.name} (Total: ${formatCurrency(data.total)})</h3>
+                            <div class="flex justify-between items-center text-xs text-gray-600">
+                                <span>Sunny Spent: <span class="text-green-600 font-semibold">${formatCurrency(data.sunnyTotal)}</span></span>
+                                <span>Deepal Spent: <span class="text-pink-600 font-semibold">${formatCurrency(data.deepalTotal)}</span></span>
+                            </div>
+                        </div>
+                    `;
+                    PAST_MONTHS_SUMMARY_ELEM.insertAdjacentHTML('beforeend', itemHtml);
+                });
+            }
+        }
+
+        // ------------------------------------------
+        // COLLAPSIBLE LOGIC
+        // ------------------------------------------
+        
+        HISTORY_HEADER.addEventListener('click', () => {
+            const isHidden = PAST_MONTHS_SUMMARY_ELEM.classList.contains('hidden');
+            if (isHidden) {
+                PAST_MONTHS_SUMMARY_ELEM.classList.remove('hidden');
+                HISTORY_ARROW.classList.add('rotate-90');
+            } else {
+                PAST_MONTHS_SUMMARY_ELEM.classList.add('hidden');
+                HISTORY_ARROW.classList.remove('rotate-90');
+            }
+        });
+
+        // Initialize fetching on page load
+        window.onload = function() {
+            fetchExpenses();
+        }
+    </script>
+</body>
+</html>
