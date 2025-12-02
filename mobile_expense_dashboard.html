@@ -45,6 +45,8 @@
         .rotate-90 {
             transform: rotate(90deg);
         }
+        
+        /* Removed .summary-card-enhanced custom styles */
     </style>
 </head>
 <body class="min-h-screen">
@@ -56,17 +58,12 @@
             <p id="month-header" class="text-sm text-gray-500 mt-1 font-semibold">Current Month: December 2025</p>
         </header>
 
-        <!-- Current Month Summary Statistics Card -->
-        <div class="bg-white card rounded-xl p-5 mb-6 grid grid-cols-2 gap-4">
+        <!-- Current Month Summary Statistics Card (Reverted to basic styling) -->
+        <div class="bg-white card rounded-xl p-5 mb-6 text-center">
             <!-- Total Expenses -->
-            <div class="border-r pr-4">
-                <p class="text-xs font-medium text-gray-500 uppercase">Current Month Total</p>
-                <p id="total-expenses" class="text-2xl font-bold text-indigo-600 mt-1">₹0.00</p>
-            </div>
-            <!-- Total Transactions -->
-            <div class="pl-4">
-                <p id="transaction-count-label" class="text-xs font-medium text-gray-500 uppercase">Transactions</p>
-                <p id="transaction-count" class="text-2xl font-bold text-gray-800 mt-1">0</p>
+            <div>
+                <p class="text-xs font-medium text-gray-500 uppercase">Current Month Total Spent</p>
+                <p id="total-expenses" class="text-3xl font-extrabold text-indigo-600 mt-1">₹0.00</p>
             </div>
         </div>
 
@@ -84,6 +81,19 @@
                     <span class="w-2 h-2 rounded-full bg-pink-500 mr-2"></span> Deepal
                 </span>
                 <span id="deepal-total" class="font-bold text-pink-600">₹0.00</span>
+            </div>
+        </div>
+        
+        <!-- Monthly Budget Balance Card -->
+        <div class="bg-white card rounded-xl p-5 mb-6 border-4 border-dashed border-indigo-200">
+            <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2 flex justify-between items-center">
+                Monthly Budget Balance 
+                <span id="budget-amount-label" class="text-xs text-indigo-500 font-normal">Budget: ₹50,000</span>
+            </h2>
+            <div id="budget-balance-display" class="text-center p-2">
+                <p class="text-sm text-gray-500 mt-1">Remaining Available Balance</p>
+                <p id="available-balance-amount" class="text-3xl font-extrabold text-green-600 mt-1">₹50,000.00</p>
+                <p id="balance-message" class="text-xs text-gray-400 mt-2">Spending within limits.</p>
             </div>
         </div>
 
@@ -125,14 +135,21 @@
         // --- CONFIGURATION ---
         // Direct CSV Publication Link provided by the user. This is the most reliable method.
         const G_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSg2yv6cZgH_d8f7gFlb3P44ZO3_DubKK0kzmnlDYdOkB2hWwv3TVUWUPnywnhG-_ECKvqUE21-aCRC/pub?gid=328285984&single=true&output=csv";
+        const MONTHLY_BUDGET = 50000; // User specified budget in INR (₹50,000)
         // --- END CONFIGURATION ---
 
         // DOM Elements
         const EXPENSE_LIST = document.getElementById('expense-list');
         const TOTAL_EXPENSES_ELEM = document.getElementById('total-expenses');
-        const TRANSACTION_COUNT_ELEM = document.getElementById('transaction-count');
+        // Removed TRANSACTION_COUNT_ELEM
         const SUNNY_TOTAL_ELEM = document.getElementById('sunny-total');
         const DEEPAL_TOTAL_ELEM = document.getElementById('deepal-total');
+        
+        // New elements for Budget
+        const AVAILABLE_BALANCE_ELEM = document.getElementById('available-balance-amount');
+        const BALANCE_MESSAGE_ELEM = document.getElementById('balance-message');
+        const BUDGET_AMOUNT_LABEL = document.getElementById('budget-amount-label');
+        
         const LOADING_INDICATOR = document.getElementById('loading-indicator');
         const MONTH_HEADER = document.getElementById('month-header');
         const PAST_MONTHS_SUMMARY_ELEM = document.getElementById('past-months-summary');
@@ -145,7 +162,8 @@
 
         /**
          * Parses CSV data from the Google Sheet pub?output=csv format.
-         * Assumes the following column order: Timestamp, Expense Details, Amount, Entered By
+         * Assumes the following COLUMN ORDER (indices) based on user confirmation that the date is in Column 5: 
+         * [0] Timestamp (Auto-generated), [1] Details, [2] Amount, [3] Entered By, [4] Date of Expense (User Input)
          */
         function parseCSV(text) {
             const lines = text.trim().split('\n').filter(line => line.trim() !== '');
@@ -157,21 +175,24 @@
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i];
 
-                // Robustly split CSV line, handling fields enclosed in double quotes (which Google's CSV output does)
+                // Robustly split CSV line
                 const cells = line.match(/("([^"]*)"|[^,]+)(,|$)/g)
                     .map(cell => cell.replace(/,$/, '')) // Remove trailing comma
                     .map(cell => cell.replace(/^"|"$/g, '')); // Remove surrounding quotes
 
-                if (cells.length < 4) continue; // Skip incomplete rows
-
-                // Map CSV indices to expense properties:
-                // cells[0]: Timestamp, cells[1]: Details, cells[2]: Amount, cells[3]: Entered By
+                // We expect at least 5 columns: Timestamp, Details, Amount, Entered By, Date
+                if (cells.length < 5) continue; 
                 
+                // CRITICAL CHANGE: Use the user-provided date field (Index 4, Column 5).
+                // Fallback to Timestamp (Index 0) only if the user date field is empty.
+                const userDateInput = cells[4].trim(); // Index 4 is the confirmed column 5
+                const dateOfExpense = userDateInput !== '' ? userDateInput : cells[0];
+
                 const expense = {
-                    dateString: cells[0] || 'N/A', 
-                    details: cells[1] || 'No Details', 
-                    amount: parseFloat(cells[2].replace(/[^0-9.]/g, '')) || 0, 
-                    enteredBy: cells[3] ? cells[3].trim() : 'Unknown'
+                    dateString: dateOfExpense || 'N/A', 
+                    details: cells[1] || 'No Details', // Index 1
+                    amount: parseFloat(cells[2].replace(/[^0-9.]/g, '')) || 0, // Index 2
+                    enteredBy: cells[3] ? cells[3].trim() : 'Unknown' // Index 3
                 };
                 
                 if (expense.amount > 0) {
@@ -184,12 +205,15 @@
 
         /**
          * Extracts a YYYY-MM key from the date string for grouping.
-         * The date format from CSV is typically MM/DD/YYYY HH:MM:SS
+         * The date format from CSV is typically MM/DD/YYYY or MM/DD/YYYY HH:MM:SS
          */
         function getExpenseMonthKey(dateString) {
             try {
-                // Parse date string (e.g., "12/2/2025 10:28:00")
-                const parts = dateString.split(' ')[0].split('/');
+                // Determine if the string is just a date (MM/DD/YYYY) or a timestamp
+                const parts = dateString.includes(' ') 
+                    ? dateString.split(' ')[0].split('/') // Timestamp: use date part (MM/DD/YYYY)
+                    : dateString.split('/'); // Date only (MM/DD/YYYY)
+                
                 if (parts.length === 3) {
                     const month = parts[0];
                     const year = parts[2];
@@ -218,7 +242,8 @@
         function formatMonthKey(key) {
             const [year, month] = key.split('-');
             if (!year || !month) return key;
-            const date = new Date(year, parseInt(month) - 1, 1);
+            // Note: Date constructor uses 0-indexed months, so -1 is required
+            const date = new Date(year, parseInt(month) - 1, 1); 
             return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
         }
         
@@ -269,7 +294,7 @@
 
         function renderDashboard(expenses) {
             // Remove loading indicator
-            LOADING_INDICATOR.remove();
+            if(LOADING_INDICATOR) LOADING_INDICATOR.remove();
 
             if (expenses.length === 0) {
                  EXPENSE_LIST.innerHTML = `<p class="p-4 text-center text-gray-500 italic">No expenses recorded yet.</p>`;
@@ -315,7 +340,7 @@
             const currentMonthData = monthlyData[currentMonthKey] || { total: 0, sunnyTotal: 0, deepalTotal: 0, transactions: [] };
             
             const previousMonthsKeys = Object.keys(monthlyData)
-                .filter(key => key !== currentMonthKey)
+                .filter(key => key !== currentMonthKey && key !== 'Invalid Date') // Exclude invalid dates
                 .sort() // Sort chronologically ascending
                 .reverse(); // Reverse to show newest previous month first
 
@@ -324,9 +349,29 @@
             const { total, sunnyTotal, deepalTotal, transactions } = currentMonthData;
 
             TOTAL_EXPENSES_ELEM.textContent = formatCurrency(total);
-            TRANSACTION_COUNT_ELEM.textContent = transactions.length;
             SUNNY_TOTAL_ELEM.textContent = formatCurrency(sunnyTotal);
             DEEPAL_TOTAL_ELEM.textContent = formatCurrency(deepalTotal);
+            
+            // --- MONTHLY BUDGET BALANCE CALCULATION & RENDERING ---
+            const availableBalance = MONTHLY_BUDGET - total;
+            
+            AVAILABLE_BALANCE_ELEM.textContent = formatCurrency(Math.abs(availableBalance));
+            BUDGET_AMOUNT_LABEL.textContent = `Budget: ${formatCurrency(MONTHLY_BUDGET)}`;
+
+            // Reset classes
+            AVAILABLE_BALANCE_ELEM.classList.remove('text-green-600', 'text-red-600', 'text-gray-600');
+
+            if (availableBalance >= 0) {
+                // Under budget
+                AVAILABLE_BALANCE_ELEM.classList.add('text-green-600');
+                BALANCE_MESSAGE_ELEM.textContent = `You are ${formatCurrency(availableBalance)} under budget. Keep it up!`;
+            } else {
+                // Over budget
+                AVAILABLE_BALANCE_ELEM.classList.add('text-red-600');
+                BALANCE_MESSAGE_ELEM.textContent = `You are ${formatCurrency(Math.abs(availableBalance))} over budget. Careful!`;
+            }
+            // --- END MONTHLY BUDGET BALANCE CALCULATION & RENDERING ---
+
 
             // 4. Render Current Month Transaction List
             EXPENSE_LIST.innerHTML = '';
@@ -346,7 +391,7 @@
                         <div class="expense-item p-4 flex justify-between items-center transition duration-150 ease-in-out hover:bg-gray-50">
                             <div class="flex-1 min-w-0 pr-4">
                                 <p class="text-lg font-semibold text-gray-900 truncate">${expense.details}</p>
-                                <p class="mt-1 text-sm text-gray-500">${expense.dateString}</p>
+                                <p class="mt-1 text-sm text-gray-500">Date: ${expense.dateString}</p>
                                 <span class="mt-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${colorClass} ring-1 ${ringColor}">${spenderText}</span>
                             </div>
                             <div class="text-right">
@@ -358,7 +403,7 @@
                 });
             }
 
-            // 5. Render Past Months Summary
+            // 5. Render Past Months Summary (Updated with color coding)
             PAST_MONTHS_SUMMARY_ELEM.innerHTML = '';
             if (previousMonthsKeys.length === 0) {
                 PAST_MONTHS_SUMMARY_ELEM.innerHTML = `<p class="p-4 text-center text-sm text-gray-500 italic">No previous months found.</p>`;
@@ -366,13 +411,31 @@
                 previousMonthsKeys.forEach(key => {
                     const data = monthlyData[key];
                     
+                    // Budget Status for past months
+                    const pastAvailableBalance = MONTHLY_BUDGET - data.total;
+                    let budgetMessage = '';
+                    let budgetClass = 'text-gray-600'; // Default safety
+
+                    if (pastAvailableBalance >= 0) {
+                         // Under budget (Savings)
+                         budgetMessage = `Spent ${formatCurrency(data.total)} (Under budget by ${formatCurrency(pastAvailableBalance)})`;
+                         budgetClass = 'text-green-600';
+                    } else {
+                         // Over budget
+                         budgetMessage = `Spent ${formatCurrency(data.total)} (OVER budget by ${formatCurrency(Math.abs(pastAvailableBalance))})`;
+                         budgetClass = 'text-red-600';
+                    }
+
                     const itemHtml = `
                         <div class="p-4 text-sm bg-gray-50">
-                            <h3 class="font-bold text-gray-800 mb-1">${data.name} (Total: ${formatCurrency(data.total)})</h3>
-                            <div class="flex justify-between items-center text-xs text-gray-600">
+                            <h3 class="font-bold text-gray-800 mb-1">${data.name}</h3>
+                            <div class="flex justify-between items-center text-xs text-gray-600 mb-1">
+                                <!-- Confirmed inclusion of both spends -->
                                 <span>Sunny Spent: <span class="text-green-600 font-semibold">${formatCurrency(data.sunnyTotal)}</span></span>
                                 <span>Deepal Spent: <span class="text-pink-600 font-semibold">${formatCurrency(data.deepalTotal)}</span></span>
                             </div>
+                            <!-- Applying dynamic color class -->
+                            <p class="text-xs font-semibold ${budgetClass}">${budgetMessage}</p>
                         </div>
                     `;
                     PAST_MONTHS_SUMMARY_ELEM.insertAdjacentHTML('beforeend', itemHtml);
