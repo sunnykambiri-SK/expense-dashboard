@@ -11,12 +11,12 @@
         /* Custom styles for a clean, mobile-first look */
         body {
             font-family: 'Inter', sans-serif;
-            /* CHANGE: Poppy Background - Light Sky Blue */
-            background-color: #f0f9ff; /* bg-sky-50 - softer poppy */
+            /* CHANGE: Background to Indigo Blue */
+            background-color: #e0e7ff; /* bg-indigo-100 */
         }
         .dashboard-bg {
-            /* Using a slightly darker sky blue for the main view background */
-            background-color: #e0f2fe; /* bg-sky-100 */
+            /* Using a slightly darker indigo blue for the main view background */
+            background-color: #c7d2fe; /* bg-indigo-200 */
         }
         .card {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
@@ -95,7 +95,7 @@
             </div>
         </div>
 
-        <!-- Current Month Contribution Summary (Pie Chart Added) -->
+        <!-- Current Month Contribution Summary (Pie Chart) -->
         <div class="bg-white card rounded-xl p-5 mb-6 blue-accent-card">
             <h2 class="text-base font-semibold text-gray-800 mb-3 border-b pb-2">Contribution Breakdown</h2>
             <div class="flex justify-between items-center">
@@ -121,7 +121,7 @@
             </div>
         </div>
         
-        <!-- CHANGE: Last 7 Days Spends Trend (Micro-Chart) -->
+        <!-- Last 7 Days Spends Trend (Micro-Chart) -->
         <div class="bg-white card rounded-xl p-5 mb-6 blue-accent-card">
             <h2 class="text-base font-semibold text-gray-800 mb-4 border-b pb-2">Last 7 Days Spends</h2>
             <div id="spending-trend-chart" class="h-24 w-full flex items-end space-x-1 p-1">
@@ -129,7 +129,7 @@
             </div>
         </div>
 
-        <!-- Current Month Expense List -->
+        <!-- Current Month Expense List (Closed by default) -->
         <div class="bg-white card rounded-xl shadow-lg mb-6 blue-accent-card">
             <div id="transactions-header" class="collapsible-header p-4 flex justify-between items-center border-b">
                 <h2 class="text-base font-bold text-gray-800">Recent Transactions</h2>
@@ -178,7 +178,7 @@
         // --- CONFIGURATION ---
         const G_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSg2yv6cZgH_d8f7gFlb3P44ZO3_DubKK0kzmnlDYdOkB2hWwv3TVUWUPnywnhG-_ECKvqUE21-aCRC/pub?gid=328285984&single=true&output=csv";
         const MONTHLY_BUDGET = 50000; 
-        const DAILY_CHART_BUDGET = 2000; // NEW: Daily budget for the 7-day chart
+        const DAILY_CHART_BUDGET = 2000; 
         // --- END CONFIGURATION ---
 
         // DOM Elements
@@ -190,7 +190,7 @@
         const AVAILABLE_BALANCE_ELEM = document.getElementById('available-balance-amount');
         const BUDGET_AMOUNT_LABEL = document.getElementById('budget-amount-label');
         const BUDGET_STATUS_ICON_ELEM = document.getElementById('budget-status-icon');
-        const PIE_CHART_ELEM = document.getElementById('contribution-pie-chart'); // NEW
+        const PIE_CHART_ELEM = document.getElementById('contribution-pie-chart');
         
         const LOADING_INDICATOR = document.getElementById('loading-indicator');
         const MONTH_NAME_ELEM = document.getElementById('month-name'); 
@@ -305,9 +305,19 @@
             const date = new Date(year, parseInt(month) - 1, 1); 
             return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
         }
+
+        /**
+         * Formats amount to K notation (e.g., 5100 -> 5.1K).
+         */
+        function formatToK(amount) {
+            if (amount >= 1000) {
+                return (amount / 1000).toFixed(1) + 'K';
+            }
+            return amount.toFixed(0);
+        }
         
         // ------------------------------------------
-        // CHART RENDERING FUNCTIONS (NEW/UPDATED)
+        // CHART RENDERING FUNCTIONS
         // ------------------------------------------
 
         /**
@@ -315,18 +325,18 @@
          */
         function renderPieChart(sunnyTotal, deepalTotal) {
             const total = sunnyTotal + deepalTotal;
-            PIE_CHART_ELEM.innerHTML = ''; // Clear previous chart
+            PIE_CHART_ELEM.innerHTML = ''; 
 
             if (total === 0) {
                 PIE_CHART_ELEM.innerHTML = `<div class="w-full h-full text-center text-xs text-gray-400 flex items-center justify-center">No data</div>`;
+                PIE_CHART_ELEM.classList.remove('relative');
                 return;
             }
 
             const sunnyRatio = sunnyTotal / total;
             const sunnyPercent = Math.round(sunnyRatio * 100);
             
-            // Circumference of a circle with radius 35 (2 * PI * 35 = ~219.9)
-            const circumference = 219.9; 
+            const circumference = 219.9; // 2 * PI * 35 (radius)
             const sunnyDash = circumference * sunnyRatio;
             const deepalDash = circumference - sunnyDash;
 
@@ -356,14 +366,13 @@
             const daysData = {};
             const MS_PER_DAY = 24 * 60 * 60 * 1000;
             const today = new Date();
-            today.setHours(0, 0, 0, 0); // Normalize to start of today
+            today.setHours(0, 0, 0, 0);
 
-            // 1. Initialize data for the last 7 calendar days (including today)
+            // 1. Initialize data for the last 7 calendar days
             for (let i = 0; i < 7; i++) {
                 const d = new Date(today.getTime() - i * MS_PER_DAY);
                 const normalizedKey = normalizeDate(d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }));
                 
-                // Only include the key if it's a valid date
                 if (normalizedKey) {
                     daysData[normalizedKey] = {
                         total: 0,
@@ -393,7 +402,7 @@
 
             // 4. Render Chart
             const maxSpending = Math.max(DAILY_CHART_BUDGET, ...trendData.map(d => d.total));
-            const budgetLineHeight = (DAILY_CHART_BUDGET / maxSpending) * 90; // Use 90% max height for bars
+            const budgetLineHeight = (DAILY_CHART_BUDGET / maxSpending) * 90; 
             const barWidth = `${100 / trendData.length - 2}%`; 
 
             CHART_ELEM.classList.add('relative');
@@ -401,7 +410,8 @@
             // Draw Budget Line (Rs. 2000)
             const budgetLineHtml = `
                 <div class="absolute w-full border-t border-dashed border-red-400 z-10 top-0" style="height: 1px; top: ${95 - budgetLineHeight}%;" title="Daily Budget: ${formatCurrency(DAILY_CHART_BUDGET)}">
-                    <span class="absolute right-0 -top-2 text-xs font-medium text-red-500 bg-white px-1 rounded">₹2K Limit</span>
+                    <!-- REMOVED 'Limit' word -->
+                    <span class="absolute right-0 -top-2 text-xs font-medium text-red-500 bg-white px-1 rounded">₹2K</span> 
                 </div>
             `;
             CHART_ELEM.innerHTML += budgetLineHtml;
@@ -409,18 +419,25 @@
             trendData.forEach(data => {
                 const heightPercentage = (data.total / maxSpending) * 90; 
                 
-                // Logic for red/green color based on the 2000 limit
                 const isOverBudget = data.total > DAILY_CHART_BUDGET;
-                const barColor = isOverBudget ? 'bg-red-500' : 'bg-green-500';
-                const labelColor = isOverBudget ? 'text-red-600 font-bold' : 'text-gray-500';
+                const barColorClass = isOverBudget ? 'bg-red-500' : 'bg-green-500';
                 
+                // Get the K-formatted label
+                const expenseLabel = formatToK(data.total);
+
+                // Determine label color class based on bar color
+                const labelColorClass = isOverBudget ? 'text-red-500' : 'text-green-500';
+
                 const barHtml = `
-                    <div class="flex flex-col items-center justify-end h-full flex-grow mx-1" style="width: ${barWidth};">
-                        <div class="w-full rounded-t-md ${barColor} transition-all duration-500 hover:opacity-75 shadow-md" 
+                    <div class="flex flex-col items-center justify-end h-full flex-grow mx-1 relative" style="width: ${barWidth};">
+                         <!-- Expense Label in K notation -->
+                        <span class="absolute -top-4 text-xs font-bold ${labelColorClass}">${expenseLabel}</span>
+                        
+                        <div class="w-full rounded-t-md ${barColorClass} transition-all duration-500 hover:opacity-75 shadow-md" 
                              style="height: ${heightPercentage}%;"
                              title="${data.label}: ${formatCurrency(data.total)}">
                         </div>
-                        <span class="text-xs ${labelColor} mt-1">${data.label}</span>
+                        <span class="text-xs text-gray-500 mt-1">${data.label}</span>
                     </div>
                 `;
                 CHART_ELEM.insertAdjacentHTML('beforeend', barHtml);
@@ -461,7 +478,7 @@
 
                 const expenses = parseCSV(rawText);
                 renderDashboard(expenses);
-                renderDailyTrendChart(expenses); // NEW: Render daily chart separately
+                renderDailyTrendChart(expenses); 
 
             } catch (error) {
                 console.error("Error fetching or parsing data:", error);
@@ -529,7 +546,7 @@
             SUNNY_TOTAL_ELEM.textContent = formatCurrency(sunnyTotal);
             DEEPAL_TOTAL_ELEM.textContent = formatCurrency(deepalTotal);
 
-            // Render the new Pie Chart
+            // Render the Pie Chart
             renderPieChart(sunnyTotal, deepalTotal);
             
             const availableBalance = MONTHLY_BUDGET - total;
@@ -650,7 +667,6 @@
         // Initialize fetching on page load
         window.onload = function() {
             fetchExpenses();
-            // REMOVED: Default open for transactions. It is now closed by default.
         }
     </script>
 </body>
