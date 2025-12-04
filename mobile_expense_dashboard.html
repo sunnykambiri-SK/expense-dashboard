@@ -1,1008 +1,735 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Joint Expense Dashboard V3</title>
-    <!-- Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* Custom styles for a clean, mobile-first look */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #e0e7ff; /* bg-indigo-100 */
-        }
-        .dashboard-bg {
-            background-color: #c7d2fe; /* bg-indigo-200 */
-        }
-        .card {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
-            transition: transform 0.2s;
-        }
-        .card:hover {
-            transform: translateY(-2px);
-        }
-        /* Expense item alternating background for better readability */
-        .expense-item:nth-child(odd) {
-            background-color: #fefefe;
-        }
-        .expense-item:nth-child(even) {
-            background-color: #ffffff;
-        }
-        /* Custom scrollbar for better mobile feel */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        /* Style for collapsible headers (interactive) */
-        .collapsible-header {
-            cursor: pointer;
-            user-select: none;
-            transition: background-color 0.15s;
-        }
-        .collapsible-header:hover {
-            background-color: #f7f7f7;
-        }
-        /* Arrow rotation for indicating open/closed state */
-        .rotate-90 {
-            transform: rotate(90deg);
-        }
-        /* Style for cards with the blue accent (consistent border and shadow) */
-        .blue-accent-card {
-            border: 1px solid rgb(191 219 254); /* light blue border (blue-200) */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05); /* enhanced shadow */
-        }
-        
-        /* Category Color Class Definitions (for dynamic category summary) */
-        .category-color-1 { background-color: #3b82f6; } /* blue-500 */
-        .category-color-2 { background-color: #10b981; } /* emerald-500 */
-        .category-color-3 { background-color: #f59e0b; } /* amber-500 */
-        .category-color-4 { background-color: #ef4444; } /* red-500 */
-        .category-color-5 { background-color: #8b5cf6; } /* violet-500 */
-        .category-color-6 { background-color: #ec4899; } /* pink-500 */
-        .category-color-7 { background-color: #2dd4bf; } /* teal-400 */
-        .category-color-8 { background-color: #6366f1; } /* indigo-500 */
-        .category-color-9 { background-color: #f43f5e; } /* rose-500 */
-        .category-color-10 { background-color: #06b6d4; } /* cyan-500 */
-        .category-color-11 { background-color: #fb7185; } /* rose-400 */
-        .category-color-12 { background-color: #eab308; } /* yellow-500 */
-        .category-color-13 { background-color: #4ade80; } /* green-400 */
-        .category-color-14 { background-color: #a855f7; } /* purple-500 */
-        .category-color-15 { background-color: #f97316; } /* orange-500 */
-        .category-color-16 { background-color: #a1a1aa; } /* zinc-400 */
-        .category-color-17 { background-color: #38bdf8; } /* sky-400 */
-        .category-color-18 { background-color: #db2777; } /* fuchsia-600 */
-        .category-color-19 { background-color: #84cc16; } /* lime-500 */
-        .category-color-20 { background-color: #6d28d9; } /* violet-700 */
-        .category-color-21 { background-color: #16a34a; } /* green-600 */
-        .category-color-22 { background-color: #7c3aed; } /* violet-600 */
-        .category-color-23 { background-color: #ca8a04; } /* yellow-700 */
-        .category-color-24 { background-color: #dc2626; } /* red-600 */
-        .category-color-25 { background-color: #4f46e5; } /* indigo-600 */
-        "OTHERS": "category-color-26", 
-        .category-color-26 { background-color: #0f172a; } /* slate-900 (for OTHERS) */
-        
-        .category-bar-label {
-            position: absolute;
-            right: 0.5rem; /* 4px padding */
-            font-weight: bold;
-            font-size: 0.875rem; /* text-sm */
-            color: #1f2937; /* text-gray-800 */
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7); /* small white shadow for contrast */
-        }
-    </style>
+  <!-- App Icon for Home‑Screen Shortcut (INR symbol) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%230059b3'/%3E%3Ctext x='50' y='63' font-size='55' text-anchor='middle' fill='white' font-family='Arial'%3E%E2%82%B9%3C/text%3E%3C/svg%3E" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expense Dashboard – Live Data</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Basic safe styles to avoid flash of unstyled content */
+    body { font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+  </style>
 </head>
-<body class="min-h-screen dashboard-bg">
+<body class="bg-indigo-100 p-4">
 
-    <div id="app" class="max-w-xl mx-auto p-4 md:p-6">
-        <!-- Header -->
-        <header class="text-center mb-6 p-2 bg-white rounded-xl shadow-md border-2 border-indigo-600">
-            <h1 class="text-xl font-extrabold text-indigo-700 tracking-tight">Joint Expense Tracker</h1>
-            <p class="text-sm text-gray-500 mt-1 font-semibold">Current Month: <span id="month-name" class="text-orange-600"></span></p>
-        </header>
+<h2 class="text-xl font-bold mb-4">Joint Expense Dashboard (Live)</h2>
 
-        <!-- 1. Combined Total Spent & Balance Card -->
-        <div class="bg-amber-50 card rounded-xl p-5 mb-6 blue-accent-card">
-            <div class="flex space-x-4">
-                <!-- Total Spent Section -->
-                <div class="flex-1 text-center pr-4">
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Spent</p>
-                    <p id="total-spent-amount" class="text-2xl font-extrabold text-indigo-600 mt-1">₹0</p>
-                </div>
-                
-                <!-- Balance Section -->
-                <div class="flex-1 text-center pl-4">
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider flex items-center justify-center">
-                        Balance
-                    </p>
-                    <div id="budget-balance-display" class="flex items-center justify-center space-x-1">
-                        <span id="budget-status-icon" class="w-5 h-5 mt-1"></span> 
-                        <p id="available-balance-amount" class="text-2xl font-extrabold mt-1 text-green-600">₹0</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Budget Burn Rate -->
-            <div id="burn-rate-container" class="mt-4 pt-3 border-t border-amber-200">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-xs font-medium text-gray-600">Time Elapsed: <span id="time-percent">0%</span></span>
-                    <span class="text-xs font-medium text-gray-600">Budget Spent: <span id="spent-percent">0%</span></span>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-2.5 relative">
-                    <!-- Time elapsed marker (blue line/bg) -->
-                    <div id="time-bar" class="absolute h-2.5 rounded-full bg-blue-400 z-10 opacity-70" style="width: 0%;"></div>
-                    <!-- Spent marker (red/green line) - sits on top -->
-                    <div id="spent-bar" class="absolute h-2.5 rounded-full z-20" style="width: 0%;"></div>
-                </div>
-                <p id="burn-rate-tip" class="text-xs mt-1 text-center italic text-gray-500"></p>
-            </div>
-        </div>
-        
-        <!-- 2. Last 10 Days Spends Trend -->
-        <div class="bg-white card rounded-xl p-5 mb-6 blue-accent-card">
-            <h2 class="text-base font-semibold text-gray-800 mb-4 border-b pb-2">Last 10 Days Spends</h2>
-            <div id="spending-trend-chart" class="h-28 w-full flex items-end space-x-1 p-1">
-                <p id="trend-message" class="text-xs text-gray-500 w-full text-center">No recent spending in the last 10 days.</p>
-            </div>
-        </div>
+<script>
+// ====== SAFETY: define a placeholder init so other script blocks can reference it without ReferenceError ======
+window.init = window.init || (async function placeholderInit(){
+  // placeholder - will be replaced by actual implementations below
+  console.debug('placeholder init (no-op)');
+});
 
-        <!-- 3. Current Month Expense List (Recent Transactions) -->
-        <div class="bg-white card rounded-xl shadow-lg mb-6 blue-accent-card">
-            <!-- Collapsible Header - Default Closed -->
-            <div id="transactions-header" class="collapsible-header p-4 flex justify-between items-center border-b rounded-t-xl">
-                <h2 class="text-base font-bold text-gray-800">Recent Transactions</h2>
-                <svg id="transactions-arrow" class="w-5 h-5 text-gray-500 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-            </div>
-            <!-- Initial state is hidden -->
-            <div id="expense-list-content" class="hidden divide-y divide-gray-100 custom-scrollbar max-h-96 overflow-y-auto">
-                <div id="loading-indicator" class="p-4 text-center text-gray-500">
-                    Loading data...
-                </div>
-            </div>
-        </div>
-        
-        <!-- 4. Category Breakdown (Horizontal Bar Graph + MoM Trend) -->
-        <div class="bg-white card rounded-xl shadow-lg mb-6 blue-accent-card">
-            <!-- Collapsible Header - Default Closed -->
-            <div id="category-header" class="collapsible-header p-4 flex justify-between items-center border-b rounded-t-xl">
-                <h2 class="text-base font-bold text-gray-800">Category Breakdown</h2>
-                <svg id="category-arrow" class="w-5 h-5 text-gray-500 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-            </div>
-            <!-- Initial state is hidden -->
-            <div id="category-list-content" class="hidden divide-y divide-gray-100 custom-scrollbar max-h-96 overflow-y-auto">
-                <div id="category-loading" class="p-4 text-center text-gray-500">
-                    Loading category data...
-                </div>
-            </div>
-        </div>
+// ---- CONFIG ----
+const USE_DUMMY_DATA = false;
+const G_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSg2yv6cZgH_d8f7gFlb3P44ZO3_DubKK0kzmnlDYdOkB2hWwv3TVUWUPnywnhG-_ECKvqUE21-aCRC/pub?output=csv";
 
-        <!-- 5. Contribution Summary (Contri) -->
-        <div class="bg-white card rounded-xl p-5 mb-6 blue-accent-card">
-            <!-- Collapsible Header - Default Closed -->
-            <div id="contribution-header" class="collapsible-header flex justify-between items-center border-b pb-2 mb-3 rounded-t-xl">
-                <h2 class="text-base font-semibold text-gray-800">Contri</h2>
-                <svg id="contribution-arrow" class="w-5 h-5 text-gray-500 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-            </div>
-            <!-- Initial state is hidden -->
-            <div id="contribution-content" class="hidden">
-                <div class="flex justify-between items-center">
-                    <!-- Left: Pie Chart Visualization -->
-                    <div id="contribution-pie-chart" class="w-20 h-20 flex-shrink-0 mr-4">
-                        <!-- SVG Pie Chart will be injected here -->
-                    </div>
-                    <!-- Right: Text Totals -->
-                    <div class="flex-grow">
-                        <div class="flex justify-between items-center mb-2 text-sm">
-                            <span class="font-medium text-gray-700 flex items-center">
-                                <!-- Sunny: Red Accent (Color Swap) -->
-                                <span class="w-2 h-2 rounded-full bg-red-500 mr-2"></span> Sunny
-                            </span>
-                            <span id="sunny-total" class="font-bold text-red-600">₹0</span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="font-medium text-gray-700 flex items-center">
-                                <!-- Deepal: Green Accent (Color Swap) -->
-                                <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span> Deepal
-                            </span>
-                            <span id="deepal-total" class="font-bold text-green-600">₹0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+// CSV Columns (according to your sheet)
+// 0: Timestamp
+// 1: What was the money spent on
+// 2: Amount
+// 3: Entered By
+// 4: Date
+// 5: Main Expense Category
 
-        <!-- 6. Past Months Summary -->
-        <div class="bg-white card rounded-xl shadow-lg blue-accent-card">
-            <!-- Collapsible Header - Default Closed -->
-            <div id="history-header" class="collapsible-header p-4 flex justify-between items-center border-b rounded-t-xl">
-                <h2 class="text-base font-semibold text-gray-800">Past Months History</h2>
-                <svg id="history-arrow" class="w-5 h-5 text-gray-500 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-            </div>
-            <!-- Initial state is hidden -->
-            <div id="past-months-summary" class="hidden divide-y divide-gray-100">
-                <div id="avg-expense-display" class="p-4 bg-amber-50 rounded-b-lg border-t border-amber-200">
-                    <p class="text-sm font-bold text-gray-700">Average Monthly Spent (Avg)</p>
-                    <p id="avg-monthly-spent" class="text-2xl font-extrabold text-amber-700 mt-1">₹0</p>
-                </div>
-                <p id="history-message" class="p-4 text-center text-sm text-gray-500 italic hidden">No previous months found.</p>
-                <!-- History items will be inserted here -->
-            </div>
-        </div>
+async function fetchCSV() {
+  if (USE_DUMMY_DATA) return [];
+  try {
+    const res = await fetch(G_SHEET_URL);
+    if (!res.ok) throw new Error('Failed to fetch CSV: ' + res.status);
+    const text = await res.text();
+    return parseCSV(text);
+  } catch (err) {
+    console.error('fetchCSV error', err);
+    return [];
+  }
+}
+
+function parseCSV(csvText) {
+  if (!csvText) return [];
+  const rows = csvText.split(/\r?\n/).filter(r => r.trim().length);
+  const data = [];
+
+  for (let i = 1; i < rows.length; i++) {
+    const cols = rows[i].split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/);
+    const clean = cols.map(c => (c || '').replace(/"/g, '').trim());
+
+    // defensive mapping - guard missing columns
+    const timestamp = clean[0] || '';
+    const details = clean[1] || '';
+    const amount = Number(clean[2] ? clean[2].replace(/,/g, '') : 0) || 0;
+    const enteredBy = clean[3] || '';
+    const date = clean[4] || timestamp.split(' ')[0] || '';
+    const category = (clean[5] && clean[5].trim()) || 'OTHERS';
+
+    data.push({ timestamp, details, amount, enteredBy, date, category });
+  }
+  return data;
+}
+
+// Base initializer: renders a simple preview (keeps previous behavior)
+async function baseInit() {
+  const expenses = await fetchCSV();
+  console.log('Loaded expenses (baseInit):', expenses.length);
+
+  // Remove any existing preview container to avoid duplicates
+  const existing = document.getElementById('preview-container');
+  if (existing) existing.remove();
+
+  const container = document.createElement('div');
+  container.id = 'preview-container';
+  container.className = 'bg-white p-4 rounded shadow mt-4';
+
+  if (expenses.length === 0) {
+    container.innerHTML = '<p class="text-sm text-gray-500">No expenses found (check sheet publishing & URL).</p>';
+    document.body.appendChild(container);
+    return expenses;
+  }
+
+  expenses.slice(0, 10).forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'border-b py-2';
+    div.innerHTML = `
+      <div class='font-semibold'>${e.details || '(no details)'}</div>
+      <div class='text-sm text-gray-500'>${e.date} • ${e.category} • ${e.enteredBy}</div>
+      <div class='font-bold text-indigo-700'>₹${e.amount}</div>
+    `;
+    container.appendChild(div);
+  });
+
+  document.body.appendChild(container);
+  return expenses;
+}
+
+// Assign baseInit as the initial init implementation (so other patches can capture it)
+window.init = baseInit;
+
+// Immediately call init once to show initial preview (will be called again by patches)
+window.init();
+</script>
 
 
-        <!-- Footer Note -->
-        <p class="text-center text-xs text-gray-400 mt-6">Displaying dummy data for visualization. Link to form is below.</p>
+<!-- STEP 1: Monthly Summary UI (Total / Sunny / Deepal) -->
+<div id="summary-card" class="bg-white p-4 rounded-xl shadow-md mb-6 border border-indigo-200">
+  <h3 class="text-lg font-bold text-indigo-700 mb-2">This Month Summary</h3>
+  <div class="flex justify-between text-sm font-semibold text-gray-700">
+    <div>Total Spent:</div>
+    <div id="total-spent">₹0</div>
+  </div>
+  <div class="flex justify-between text-sm mt-2">
+    <div class="text-red-600 font-semibold">Sunny</div>
+    <div id="sunny-total" class="font-bold text-red-600">₹0</div>
+  </div>
+  <div class="flex justify-between text-sm mt-1">
+    <div class="text-green-600 font-semibold">Deepal</div>
+    <div id="deepal-total" class="font-bold text-green-600">₹0</div>
+  </div>
+  <p id="summary-month" class="text-xs text-gray-500 mt-3"></p>
+</div>
+
+<script>
+// --- STEP 1: COMPUTE MONTH LEVEL TOTALS ---
+function computeMonthlyTotals(expenses) {
+  const today = new Date();
+  const month = today.getMonth() + 1;
+  const year = today.getFullYear();
+
+  const monthly = expenses.filter(e => {
+    // e.date expected as MM/DD/YYYY or already normalized YYYY-MM-DD
+    const d = new Date(e.date);
+    return d.getFullYear() === year && (d.getMonth() + 1) === month;
+  });
+
+  let total = 0;
+  let sunny = 0;
+  let deepal = 0;
+
+  monthly.forEach(e => {
+    total += Number(e.amount) || 0;
+    if (String(e.enteredBy).trim() === 'Sunny') sunny += Number(e.amount) || 0;
+    if (String(e.enteredBy).trim() === 'Deepal') deepal += Number(e.amount) || 0;
+  });
+
+  document.getElementById('total-spent').textContent = `₹${total}`;
+  document.getElementById('sunny-total').textContent = `₹${sunny}`;
+  document.getElementById('deepal-total').textContent = `₹${deepal}`;
+
+  const monthName = today.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  document.getElementById('summary-month').textContent = `Showing data for ${monthName}`;
+
+  return monthly;
+}
+
+// Patchable init: capture current init and wrap
+(function patchStep1(){
+  const _oldInit = window.init;
+  window.init = async function step1Init(){
+    const expenses = await fetchCSV();
+    computeMonthlyTotals(expenses);
+    if (typeof _oldInit === 'function') await _oldInit();
+  };
+})();
+</script>
+
+
+<!-- STEP 2: Recent Transactions (Collapsible) -->
+<div id="tx-card" class="bg-white p-4 rounded-xl shadow-md mb-6 border border-indigo-200">
+  <div id="tx-header" class="flex justify-between items-center cursor-pointer select-none">
+    <h3 class="text-lg font-bold text-indigo-700">Recent Transactions</h3>
+    <span id="tx-arrow" class="transition-transform">▶</span>
+  </div>
+  <div id="tx-list" class="mt-3 hidden"></div>
+</div>
+
+<script>
+// Toggle collapsible
+function setupTxCollapsible() {
+  const header = document.getElementById('tx-header');
+  const arrow = document.getElementById('tx-arrow');
+  const list = document.getElementById('tx-list');
+
+  header.onclick = () => {
+    const isHidden = list.classList.contains('hidden');
+    if (isHidden) {
+      list.classList.remove('hidden');
+      arrow.style.transform = 'rotate(90deg)';
+    } else {
+      list.classList.add('hidden');
+      arrow.style.transform = 'rotate(0deg)';
+    }
+  };
+}
+
+// Render recent transactions
+function renderTransactions(monthExpenses) {
+  const list = document.getElementById('tx-list');
+  list.innerHTML = '';
+
+  if (!monthExpenses || monthExpenses.length === 0) {
+    list.innerHTML = `<p class='text-sm text-gray-500 italic'>No expenses recorded this month.</p>`;
+    return;
+  }
+
+  // Sort newest → oldest
+  monthExpenses.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  monthExpenses.forEach(e => {
+    const color = String(e.enteredBy).trim() === 'Sunny' ? 'red' : 'green';
+
+    const item = document.createElement('div');
+    item.className = 'border-b py-3';
+    item.innerHTML = `
+      <div class='font-semibold'>${e.details}</div>
+      <div class='text-xs text-gray-500 flex items-center gap-2'>
+        <span>${e.date}</span>
+        <span class='px-2 py-0.5 text-white rounded-full text-[10px] bg-${color}-500'>${e.enteredBy}</span>
+        <span class='text-gray-600'>• ${e.category}</span>
+      </div>
+      <div class='font-bold text-indigo-700 mt-1'>₹${e.amount}</div>
+    `;
+
+    list.appendChild(item);
+  });
+}
+
+// Patchable init for step 2
+(function patchStep2(){
+  const _oldInit = window.init;
+  window.init = async function step2Init(){
+    const expenses = await fetchCSV();
+    const monthList = computeMonthlyTotals(expenses);
+    renderTransactions(monthList);
+    setupTxCollapsible();
+    if (typeof _oldInit === 'function') await _oldInit();
+  };
+})();
+</script>
+
+
+<!-- STEP 3: Budget vs Actual Burn Rate -->
+<div id="burn-card" class="bg-white p-4 rounded-xl shadow-md mb-6 border border-indigo-200">
+  <h3 class="text-lg font-bold text-indigo-700 mb-2">Budget vs Actual Burn Rate</h3>
+
+  <div class="flex justify-between text-sm text-gray-700 mb-1">
+    <span>Time Elapsed:</span>
+    <span id="burn-time">0%</span>
+  </div>
+
+  <div class="flex justify-between text-sm text-gray-700 mb-1">
+    <span>Budget Spent:</span>
+    <span id="burn-spent">0%</span>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="relative w-full h-3 bg-gray-200 rounded-full mt-3">
+    <!-- Time Progress -->
+    <div id="burn-time-bar" class="absolute h-3 bg-blue-400 rounded-full opacity-70" style="width:0%"></div>
+    <!-- Spending Progress -->
+    <div id="burn-spent-bar" class="absolute h-3 rounded-full" style="width:0%"></div>
+  </div>
+
+  <p id="burn-tip" class="text-xs text-gray-500 mt-2 italic"></p>
+</div>
+
+<script>
+const MONTHLY_BUDGET = 50000;
+function computeBurnRate(totalSpent) {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  const end = new Date(now.getFullYear(), now.getMonth()+1, 0);
+
+  const totalDays = end.getDate();
+  const daysPassed = now.getDate();
+
+  const timeRatio = daysPassed / totalDays;
+  const spentRatio = totalSpent / MONTHLY_BUDGET;
+
+  document.getElementById('burn-time').textContent = Math.round(timeRatio * 100) + '%';
+  document.getElementById('burn-spent').textContent = Math.round(spentRatio * 100) + '%';
+
+  document.getElementById('burn-time-bar').style.width = (timeRatio * 100) + '%';
+
+  const spentBar = document.getElementById('burn-spent-bar');
+  spentBar.style.width = Math.min(spentRatio * 100, 100) + '%';
+  spentBar.classList.remove('bg-green-500','bg-red-500');
+  spentBar.classList.add(spentRatio > timeRatio ? 'bg-red-500' : 'bg-green-500');
+
+  let tip = 'On track.';
+  if (spentRatio > 1) tip = 'You are over the monthly budget!';
+  else if (spentRatio > timeRatio) tip = 'Warning: Spending faster than time.';
+  document.getElementById('burn-tip').textContent = tip;
+}
+
+// Patchable init for step 3
+(function patchStep3(){
+  const _oldInit = window.init;
+  window.init = async function step3Init(){
+    const expenses = await fetchCSV();
+    const monthList = computeMonthlyTotals(expenses);
+
+    const totalSpent = monthList.reduce((sum,e) => sum + Number(e.amount || 0), 0);
+    computeBurnRate(totalSpent);
+
+    renderTransactions(monthList);
+    setupTxCollapsible();
+
+    if (typeof _oldInit === 'function') await _oldInit();
+  };
+})();
+</script>
+
+
+<!-- STEP 4: Last 10 Days Trend Chart -->
+<div id="trend-card" class="bg-white p-4 rounded-xl shadow-md mb-6 border border-indigo-200">
+  <h3 class="text-lg font-bold text-indigo-700 mb-3">Last 10 Days Trend</h3>
+  <div id="trend-chart" class="flex items-end space-x-1 h-40 relative"></div>
+</div>
+
+<script>
+const TREND_DAYS = 10;
+function makeDateKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function renderTrend(expenses) {
+  const chart = document.getElementById('trend-chart');
+  chart.innerHTML = '';
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const days = {};
+  for (let i = 0; i < TREND_DAYS; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    days[makeDateKey(d)] = { total: 0, label: d.getDate() + '/' + (d.getMonth()+1) };
+  }
+
+  expenses.forEach(e => {
+    const d = new Date(e.date);
+    d.setHours(0,0,0,0);
+    const key = makeDateKey(d);
+    if (days[key]) days[key].total += Number(e.amount || 0);
+  });
+
+  const ordered = Object.keys(days).sort();
+  const values = ordered.map(k => days[k].total);
+  const max = Math.max(1, ...values);
+
+  ordered.forEach(k => {
+    const val = days[k].total;
+    const pct = (val / max) * 90;
+
+    const bar = document.createElement('div');
+    bar.className = 'flex flex-col items-center flex-1';
+    bar.innerHTML = `
+      <span class='text-[10px] text-gray-600 mb-1'>${val > 0 ? val : ''}</span>
+      <div class='w-full bg-indigo-500 rounded-t' style='height:${pct}%'></div>
+      <span class='text-[10px] text-gray-500 mt-1'>${days[k].label}</span>
+    `;
+    chart.appendChild(bar);
+  });
+}
+
+// Patchable init for step 4
+(function patchStep4(){
+  const _oldInit = window.init;
+  window.init = async function step4Init(){
+    const expenses = await fetchCSV();
+    const monthList = computeMonthlyTotals(expenses);
+    const totalSpent = monthList.reduce((s,e)=>s+Number(e.amount||0),0);
+    computeBurnRate(totalSpent);
+    renderTransactions(monthList);
+    setupTxCollapsible();
+
+    renderTrend(expenses);
+
+    if (typeof _oldInit === 'function') await _oldInit();
+  };
+})();
+</script>
+
+
+<!-- STEP 5: Category Breakdown -->
+<div id="cat-card" class="bg-white p-4 rounded-xl shadow-md mb-6 border border-indigo-200">
+  <h3 class="text-lg font-bold text-indigo-700 mb-3">Category Breakdown</h3>
+  <div id="cat-list"></div>
+</div>
+
+<script>
+function renderCategoryBreakdown(expenses) {
+  const list = document.getElementById('cat-list');
+  list.innerHTML = '';
+
+  const totals = {};
+  let monthTotal = 0;
+
+  expenses.forEach(e => {
+    monthTotal += Number(e.amount || 0);
+    const cat = e.category || 'OTHERS';
+    if (!totals[cat]) totals[cat] = 0;
+    totals[cat] += Number(e.amount || 0);
+  });
+
+  const entries = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
+  const max = entries[0] ? entries[0][1] : 1;
+
+  entries.forEach(([cat, amt]) => {
+    const pct = (amt / max) * 90;
+    const share = monthTotal ? ((amt / monthTotal) * 100).toFixed(0) : 0;
+
+    const row = document.createElement('div');
+    row.className = 'mb-3';
+    row.innerHTML = `
+      <div class='flex justify-between text-sm font-semibold'>
+        <span>${cat} (${share}%)</span>
+        <span>₹${amt}</span>
+      </div>
+      <div class='w-full bg-gray-200 h-3 rounded-full mt-1'>
+        <div class='h-3 bg-indigo-500 rounded-full' style='width:${pct}%'></div>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+// Patchable init for step 5
+(function patchStep5(){
+  const _oldInit = window.init;
+  window.init = async function step5Init(){
+    const expenses = await fetchCSV();
+    const monthList = computeMonthlyTotals(expenses);
+    const totalSpent = monthList.reduce((s,e)=>s+Number(e.amount||0),0);
+
+    computeBurnRate(totalSpent);
+    renderTransactions(monthList);
+    setupTxCollapsible();
+    renderTrend(expenses);
+
+    renderCategoryBreakdown(monthList);
+
+    if (typeof _oldInit === 'function') await _oldInit();
+  };
+})();
+</script>
+
+
+<!-- STEP 6: Contribution Pie Chart (Sunny vs Deepal) -->
+<div id="pie-card" class="bg-white p-4 rounded-xl shadow-md mb-6 border border-indigo-200">
+  <h3 class="text-lg font-bold text-indigo-700 mb-3">Contribution (Sunny vs Deepal)</h3>
+  <div id="pie-chart" class="relative w-32 h-32 mx-auto"></div>
+</div>
+
+<script>
+function renderPie(sunny, deepal) {
+  const total = Number(sunny||0) + Number(deepal||0);
+  const chart = document.getElementById('pie-chart');
+  chart.innerHTML = '';
+  if (total === 0) {
+    chart.innerHTML = "<p class='text-sm text-gray-500 text-center'>No data</p>";
+    return;
+  }
+
+  const sunnyPct = sunny / total;
+  const circ = 2 * Math.PI * 40;
+
+  chart.innerHTML = `
+    <svg viewBox='0 0 100 100' class='transform -rotate-90'>
+      <circle cx='50' cy='50' r='40' stroke='#10b981' stroke-width='12' fill='none'/>
+      <circle cx='50' cy='50' r='40' stroke='#ef4444' stroke-width='12' fill='none'
+        stroke-dasharray='${circ * sunnyPct} ${circ}' />
+    </svg>
+    <div class='absolute inset-0 flex items-center justify-center font-bold text-sm'>${Math.round(sunnyPct*100)}%</div>
+  `;
+}
+
+// Patchable init for step 6
+(function patchStep6(){
+  const _oldInit = window.init;
+  window.init = async function step6Init(){
+    const expenses = await fetchCSV();
+    const monthList = computeMonthlyTotals(expenses);
+    const totalSpent = monthList.reduce((s,e)=>s+Number(e.amount||0),0);
+
+    computeBurnRate(totalSpent);
+    renderTransactions(monthList);
+    setupTxCollapsible();
+    renderTrend(expenses);
+    renderCategoryBreakdown(monthList);
+
+    let sunny = 0, deepal = 0;
+    monthList.forEach(e => { if (String(e.enteredBy).trim()==='Sunny') sunny += Number(e.amount||0); if (String(e.enteredBy).trim()==='Deepal') deepal += Number(e.amount||0); });
+    renderPie(sunny, deepal);
+
+    if (typeof _oldInit === 'function') await _oldInit();
+  };
+})();
+</script>
+
+
+<!-- STEP 7: Past Months History -->
+<div id="hist-card" class="bg-white p-4 rounded-xl shadow-md mb-6 border border-indigo-200">
+  <h3 class="text-lg font-bold text-indigo-700 mb-3">Past Months History</h3>
+  <div id="hist-list"></div>
+</div>
+
+<script>
+function renderHistory(expenses) {
+  const hist = document.getElementById('hist-list');
+  hist.innerHTML = '';
+
+  const byMonth = {};
+  expenses.forEach(e => {
+    const d = new Date(e.date);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if (!byMonth[key]) byMonth[key] = 0;
+    byMonth[key] += Number(e.amount||0);
+  });
+
+  const sorted = Object.entries(byMonth).sort((a,b)=>b[0].localeCompare(a[0]));
+  const currentKey = new Date().getFullYear() + '-' + String(new Date().getMonth()+1).padStart(2,'0');
+
+  sorted.forEach(([key, amt]) => {
+    if (key === currentKey) return; // skip current month
+
+    const d = new Date(key + '-01');
+    const name = d.toLocaleString('en-US',{ month:'long', year:'numeric' });
+
+    const row = document.createElement('div');
+    row.className = 'border-b py-2';
+    row.innerHTML = `
+      <div class='font-semibold text-sm'>${name}</div>
+      <div class='text-indigo-700 font-bold'>₹${amt}</div>
+    `;
+    hist.appendChild(row);
+  });
+}
+
+// Patchable init for step 7 (final)
+(function patchStep7(){
+  const _oldInit = window.init;
+  window.init = async function step7Init(){
+    const expenses = await fetchCSV();
+    const monthList = computeMonthlyTotals(expenses);
+    const totalSpent = monthList.reduce((s,e)=>s+Number(e.amount||0),0);
+
+    computeBurnRate(totalSpent);
+    renderTransactions(monthList);
+    setupTxCollapsible();
+    renderTrend(expenses);
+    renderCategoryBreakdown(monthList);
+
+    let sunny = 0, deepal = 0;
+    monthList.forEach(e => { if (String(e.enteredBy).trim()==='Sunny') sunny += Number(e.amount||0); if (String(e.enteredBy).trim()==='Deepal') deepal += Number(e.amount||0); });
+    renderPie(sunny, deepal);
+
+    renderHistory(expenses);
+
+    if (typeof _oldInit === 'function') await _oldInit();
+  };
+})();
+</script>
+
+
+<!-- --- ENHANCEMENTS: Filters, Dark Mode Toggle, FAB polish, Animations, Category Budgets --- -->
+<style>
+  /* Simple animation helpers */
+  .fade-in { animation: fadeIn 400ms ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+
+  .fab-anim { animation: pulse 2000ms infinite; }
+  @keyframes pulse { 0%{ transform: translateY(0) scale(1);} 50%{ transform: translateY(-4px) scale(1.03);} 100%{ transform: translateY(0) scale(1);} }
+
+  /* Dark mode variables */
+  :root { --bg: #eef2ff; --card: #ffffff; --text: #0f172a; --muted: #6b7280; --accent: #4f46e5; }
+  body.dark { --bg: #0b1220; --card: #071023; --text: #e6eef8; --muted: #94a3b8; --accent: #7c3aed; }
+
+  body { background: var(--bg); color: var(--text); }
+  .card { background: var(--card); }
+  .muted { color: var(--muted); }
+
+  /* Improved FAB look */
+  .fab-upgraded { box-shadow: 0 8px 20px rgba(79,70,229,0.18); }
+
+  /* Category color chips fallbacks */
+  .cat-chip { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:6px; vertical-align:middle; }
+</style>
+
+<!-- Filters + Dark Mode Toggle -->
+<div class="bg-white p-3 rounded-xl shadow-md mb-4 card fade-in" style="max-width:640px;margin:12px auto;">
+  <div class="flex items-center justify-between mb-3">
+    <div class="font-bold text-indigo-700">Filters</div>
+    <div class="flex items-center gap-2">
+      <label class="text-sm muted">Dark</label>
+      <button id="dark-toggle" class="px-2 py-1 rounded bg-gray-100 text-sm">Toggle</button>
     </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+    <div>
+      <label class="text-xs muted">From</label>
+      <input id="filter-from" type="date" class="w-full p-2 rounded border" />
+    </div>
+    <div>
+      <label class="text-xs muted">To</label>
+      <input id="filter-to" type="date" class="w-full p-2 rounded border" />
+    </div>
+    <div>
+      <label class="text-xs muted">Category</label>
+      <select id="filter-category" class="w-full p-2 rounded border"><option value="all">All</option></select>
+    </div>
+    <div>
+      <label class="text-xs muted">Person</label>
+      <select id="filter-person" class="w-full p-2 rounded border"><option value="all">All</option><option>Sunny</option><option>Deepal</option></select>
+    </div>
+    <div>
+      <label class="text-xs muted">Min Amount</label>
+      <input id="filter-min" type="number" class="w-full p-2 rounded border" placeholder="0" />
+    </div>
+    <div class="flex items-end">
+      <button id="filter-apply" class="w-full p-2 rounded bg-indigo-600 text-white">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- Upgraded FAB (INR icon) -->
+<a id="fab" href="https://docs.google.com/forms/d/1hnsgJRRX_1vcoo9bmIXVzTih__gkM_ltXX5DvxLtkGc/viewform" target="_blank" class="fixed bottom-6 right-6 z-50 flex items-center justify-center w-16 h-16 bg-indigo-600 text-white rounded-full fab-upgraded fab-anim" title="Add Expense">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="transform" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v16" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 12H4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</a>
+
+<script>
+// ENHANCEMENTS SCRIPT: manual dark toggle, filters wiring, category chips and animations
+let ALL_EXPENSES = [];
+let CURRENT_FILTERED = [];
+
+function isoFromInputDate(value) {
+  // input type=date returns YYYY-MM-DD; convert to Date object
+  if (!value) return null;
+  return new Date(value + 'T00:00:00');
+}
+
+function applyFiltersAndRender() {
+  const from = isoFromInputDate(document.getElementById('filter-from').value);
+  const to = isoFromInputDate(document.getElementById('filter-to').value);
+  const cat = document.getElementById('filter-category').value;
+  const person = document.getElementById('filter-person').value;
+  const min = Number(document.getElementById('filter-min').value || 0);
+
+  CURRENT_FILTERED = ALL_EXPENSES.filter(e => {
+    const d = new Date(e.date);
+    if (from && d < from) return false;
+    if (to) {
+      const toEnd = new Date(to); toEnd.setHours(23,59,59,999);
+      if (d > toEnd) return false;
+    }
+    if (cat !== 'all' && e.category !== cat) return false;
+    if (person !== 'all' && e.enteredBy !== person) return false;
+    if (e.amount < min) return false;
+    return true;
+  });
+
+  // Use CURRENT_FILTERED for all renderers
+  const monthlyList = computeMonthlyTotals(CURRENT_FILTERED);
+  const totalSpent = monthlyList.reduce((s, x) => s + x.amount, 0);
+  computeBurnRate(totalSpent);
+  renderTransactions(monthlyList);
+  renderTrend(CURRENT_FILTERED);
+  renderCategoryBreakdown(monthlyList);
+
+  let sunny = 0, deepal = 0;
+  monthlyList.forEach(e => { if (e.enteredBy==='Sunny') sunny+=e.amount; if (e.enteredBy==='Deepal') deepal+=e.amount; });
+  renderPie(sunny, deepal);
+  renderHistory(CURRENT_FILTERED);
+}
+
+function populateCategorySelect() {
+  const sel = document.getElementById('filter-category');
+  const cats = Array.from(new Set(ALL_EXPENSES.map(e=>e.category || 'OTHERS'))).sort();
+  // clear existing options except 'all'
+  sel.querySelectorAll('option:not([value="all"])').forEach(o=>o.remove());
+  cats.forEach(c => {
+    const opt = document.createElement('option'); opt.value = c; opt.textContent = c; sel.appendChild(opt);
+  });
+}
+
+// Dark mode toggle
+const darkToggle = document.getElementById('dark-toggle');
+darkToggle.onclick = () => {
+  document.body.classList.toggle('dark');
+};
+
+// Filter apply
+document.getElementById('filter-apply').onclick = () => applyFiltersAndRender();
+
+// Hook into existing init: replace with enhanced init
+const __finalInit = window.init;
+window.init = async function enhancedInit() {
+  const expenses = await fetchCSV();
+  ALL_EXPENSES = expenses.map(e => ({ ...e }));
+  // ensure Date fields are in ISO-friendly format when possible
+  ALL_EXPENSES.forEach(e => {
+    // e.date is MM/DD/YYYY per your sheet; normalize to YYYY-MM-DD for JS Date
+    try {
+      const parts = String(e.date || '').split('/'); // MM/DD/YYYY
+      if (parts.length === 3) {
+        e.date = `${parts[2]}-${parts[0].padStart(2,'0')}-${parts[1].padStart(2,'0')}`;
+      }
+    } catch (err) { /* keep original */ }
+  });
+
+  // initial populate filters
+  populateCategorySelect();
+  // default render without filters
+  CURRENT_FILTERED = ALL_EXPENSES.slice();
+  applyFiltersAndRender();
+
+  // call older init flow to preserve any other behaviour
+  if (typeof __finalInit === 'function') await __finalInit();
+};
+
+// Run the enhanced init after a brief tick to ensure DOM is ready
+setTimeout(() => { if (typeof window.init === 'function') window.init(); }, 50);
+</script>
 
-    <!-- Floating Action Button (FAB) for adding expenses -->
-    <a href="https://docs.google.com/forms/d/1hnsgJRRX_1vcoo9bmIXVzTih__gkM_ltXX5DvxLtkGc/viewform" target="_blank" 
-       class="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 bg-indigo-600 text-white rounded-full shadow-2xl hover:bg-indigo-700 transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-indigo-300">
-        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-    </a>
-
-    <script>
-        // --- CONFIGURATION ---
-        const USE_DUMMY_DATA = true; 
-        const G_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSg2yv6cZgH_d8f7gFlb3P44ZO3_DubKK0kzmnlDYdOkB2hWwv3TVUWUPnywnhG-_ECKvqUE21-aCRC/pub?gid=328285984&single=true&output=csv";
-        const MONTHLY_BUDGET = 50000; 
-        const DAILY_CHART_BUDGET = 2000; 
-        const DAYS_IN_TREND_CHART = 10; 
-        
-        // Requested Color Accents
-        // Sunny: Red, Deepal: Green
-        const SUNNY_COLOR_ACCENT = 'red';
-        const DEEPAL_COLOR_ACCENT = 'green';
-
-        // Final Category List and assigned Tailwind color classes for the breakdown chart
-        const CATEGORY_COLORS = {
-            "Auto / Taxi - Commute": "category-color-1",
-            "Petrol Car Commute": "category-color-2",
-            "Car / Bike Maintenance Commute": "category-color-3",
-            "Commute others": "category-color-4",
-            "Grocery": "category-color-5",
-            "Lunch Office Daily": "category-color-6",
-            "Tea/Coffee Daily": "category-color-7",
-            "Shopping: Clothes/Shoes": "category-color-8",
-            "Shopping: Make up": "category-color-9",
-            "Shopping: Personal Items - Sanitary Pads, etc.": "category-color-10",
-            "Shopping: Electronics": "category-color-11",
-            "Shopping Parlour / hair cut": "category-color-12",
-            "Shopping Others": "category-color-13",
-            "Home Repair": "category-color-14",
-            "Home Stuff": "category-color-15",
-            "Outings Lunches/Dinners": "category-color-16",
-            "Outings Movies": "category-color-17",
-            "Outings Others": "category-color-18",
-            "Outings with Guests": "category-color-19",
-            "Laundry": "category-color-20",
-            "Alteration / dye": "category-color-21",
-            "Coconut": "category-color-22",
-            "Stationery": "category-color-23",
-            "General Gifting": "category-color-24",
-            "Wedding related expenses": "category-color-25",
-            "OTHERS": "category-color-26", 
-            "N/A": "bg-gray-400" 
-        };
-        // --- DUMMY DATA FOR VISUALIZATION ---
-        // Using December 2025 as the current month for stable visualization
-        // NOTE: The dateString format is MM/DD/YYYY HH:MM:SS (Timestamp from Form)
-        // For the purpose of this fix, we assume the expense date is implicitly derived from this timestamp's date part.
-        const DUMMY_EXPENSES = [
-            { dateString: '12/01/2025 10:00:00', details: 'Milk and bread', amount: 5000, enteredBy: 'Sunny', category: 'Grocery' },
-            { dateString: '12/02/2025 14:30:00', details: 'Dinner date at Italian place', amount: 3500, enteredBy: 'Deepal', category: 'Outings Lunches/Dinners' },
-            { dateString: '12/02/2025 08:00:00', details: 'Office cab to client site', amount: 400, enteredBy: 'Sunny', category: 'Auto / Taxi - Commute' },
-            { dateString: '12/03/2025 19:00:00', details: 'New shirt and trousers', amount: 8000, enteredBy: 'Deepal', category: 'Shopping: Clothes/Shoes' },
-            { dateString: '12/03/2025 12:30:00', details: 'Office Lunch', amount: 200, enteredBy: 'Sunny', category: 'Lunch Office Daily' },
-            { dateString: '12/04/2025 16:00:00', details: 'Electrician fee for fan repair', amount: 1500, enteredBy: 'Sunny', category: 'Home Repair' },
-            { dateString: '12/04/2025 18:00:00', details: 'Weekly groceries run', amount: 4000, enteredBy: 'Deepal', category: 'Grocery' },
-            { dateString: '12/04/2025 09:00:00', details: 'Morning tea', amount: 50, enteredBy: 'Sunny', category: 'Tea/Coffee Daily' },
-            { dateString: '12/05/2025 21:00:00', details: 'Movie tickets and popcorn', amount: 1200, enteredBy: 'Deepal', category: 'Outings Movies' },
-            { dateString: '12/06/2025 11:00:00', details: 'Misc purchase (Other Detail: New curtain rod)', amount: 1000, enteredBy: 'Sunny', category: 'OTHERS' },
-            { dateString: '12/07/2025 11:00:00', details: 'Restaurant Bill', amount: 2500, enteredBy: 'Deepal', category: 'Outings Lunches/Dinners' }, // > DAILY_CHART_BUDGET - Will be highlighted
-            { dateString: '12/08/2025 11:00:00', details: 'Large electronics purchase', amount: 2000, enteredBy: 'Deepal', category: 'Shopping: Electronics' }, // Equal to DAILY_CHART_BUDGET
-            { dateString: '12/09/2025 11:00:00', details: 'Car Repair', amount: 3000, enteredBy: 'Sunny', category: 'Car / Bike Maintenance Commute' }, // > DAILY_CHART_BUDGET - Will be highlighted
-            { dateString: '12/10/2025 11:00:00', details: 'Commute', amount: 150, enteredBy: 'Sunny', category: 'Auto / Taxi - Commute' }, 
-        ];
-        
-        // DUMMY Previous Month Category Totals (for MoM Comparison)
-        // Key: Category Name, Value: Total Amount
-        const DUMMY_PREV_MONTH_CATEGORY_TOTALS = {
-            "Grocery": 10000,
-            "Outings Lunches/Dinners": 2500,
-            "Auto / Taxi - Commute": 1000,
-            "Shopping: Clothes/Shoes": 5000,
-            "Home Repair": 500,
-            "Lunch Office Daily": 150,
-            "Tea/Coffee Daily": 100
-        };
-
-        // DUMMY Past Month History (Requested: 50K, 40K, 70K for last 3 months)
-        const DUMMY_HISTORY = {
-            // Current month is 2025-12 based on DUMMY_EXPENSES
-            '2025-11': 50000, // Last month
-            '2025-10': 40000, // 2 months ago
-            '2025-09': 70000, // 3 months ago
-        };
-        // --- END CONFIGURATION ---
-
-        // DOM Elements
-        const EXPENSE_LIST = document.getElementById('expense-list-content'); 
-        const CATEGORY_LIST_ELEM = document.getElementById('category-list-content'); 
-        const TOTAL_SPENT_ELEM = document.getElementById('total-spent-amount'); 
-        const SUNNY_TOTAL_ELEM = document.getElementById('sunny-total');
-        const DEEPAL_TOTAL_ELEM = document.getElementById('deepal-total');
-        const AVAILABLE_BALANCE_ELEM = document.getElementById('available-balance-amount');
-        const BUDGET_STATUS_ICON_ELEM = document.getElementById('budget-status-icon');
-        const PIE_CHART_ELEM = document.getElementById('contribution-pie-chart');
-        const LOADING_INDICATOR = document.getElementById('loading-indicator');
-        const MONTH_NAME_ELEM = document.getElementById('month-name'); 
-        const AVG_MONTHLY_SPENT_ELEM = document.getElementById('avg-monthly-spent');
-        const CHART_ELEM = document.getElementById('spending-trend-chart'); 
-        
-        // Burn Rate Elements
-        const TIME_PERCENT_ELEM = document.getElementById('time-percent');
-        const SPENT_PERCENT_ELEM = document.getElementById('spent-percent');
-        const TIME_BAR_ELEM = document.getElementById('time-bar');
-        const SPENT_BAR_ELEM = document.getElementById('spent-bar');
-        const BURN_RATE_TIP_ELEM = document.getElementById('burn-rate-tip');
-
-        // Collapsible elements (Used in event listeners)
-        const TRANSACTIONS_HEADER = document.getElementById('transactions-header');
-        const TRANSACTIONS_ARROW = document.getElementById('transactions-arrow');
-        const CATEGORY_HEADER = document.getElementById('category-header');
-        const CATEGORY_ARROW = document.getElementById('category-arrow');
-        const CATEGORY_LIST_CONTENT = document.getElementById('category-list-content');
-        const CONTRIBUTION_HEADER = document.getElementById('contribution-header');
-        const CONTRIBUTION_ARROW = document.getElementById('contribution-arrow');
-        const CONTRIBUTION_CONTENT = document.getElementById('contribution-content');
-        const HISTORY_HEADER = document.getElementById('history-header');
-        const HISTORY_ARROW = document.getElementById('history-arrow');
-        const HISTORY_CONTENT = document.getElementById('past-months-summary');
-
-
-        // ------------------------------------------
-        // UTILITY FUNCTIONS
-        // ------------------------------------------
-
-        function getExpenseMonthKey(dateString) {
-            try {
-                // Extract only the date part (MM/DD/YYYY)
-                const datePart = dateString.split(' ')[0];
-                const parts = datePart.split('/');
-                
-                if (parts.length === 3) {
-                    const month = parts[0];
-                    const year = parts[2];
-                    return `${year}-${month.padStart(2, '0')}`;
-                }
-            } catch (e) {
-                console.error("Error parsing date:", dateString, e);
-            }
-            return 'Invalid Date';
-        }
-
-        /**
-         * Normalizes the MM/DD/YYYY part of the dateString to YYYY-MM-DD for comparison and grouping.
-         * @param {string} dateString - e.g., '12/01/2025 10:00:00'
-         * @returns {string | null} Normalized date string or null.
-         */
-        function normalizeDate(dateString) {
-            try {
-                // IMPORTANT FIX: Use only the date part (MM/DD/YYYY)
-                const datePart = dateString.split(' ')[0];
-                const parts = datePart.split('/'); // MM/DD/YYYY
-                if (parts.length === 3) {
-                    // Converts to YYYY-MM-DD format
-                    return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
-                }
-            } catch (e) {
-                return null;
-            }
-            return null;
-        }
-        
-        function formatDayKey(normalizedDate) {
-             const parts = normalizedDate.split('-'); // YYYY-MM-DD
-             return `${parts[2]}/${parts[1]}`; // DD/MM
-        }
-        
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-IN', {
-                style: 'currency',
-                currency: 'INR',
-                minimumFractionDigits: 0, 
-                maximumFractionDigits: 0, 
-            }).format(amount);
-        }
-        
-        function formatPercentage(value) {
-            return `${Math.round(value * 100)}%`;
-        }
-        
-        function formatMonthKey(key) {
-            const [year, month] = key.split('-');
-            if (!year || !month) return key;
-            const date = new Date(year, parseInt(month) - 1, 1); 
-            return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
-        }
-
-        function formatToK(amount) {
-            if (amount >= 1000) {
-                return (amount / 1000).toFixed(1) + 'K';
-            }
-            return amount.toFixed(0);
-        }
-        
-        function getBurnRateData(currentMonthDate) {
-            const now = currentMonthDate;
-            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-            
-            const totalDays = endOfMonth.getDate();
-            const daysPassed = now.getDate();
-            
-            const timeElapsedRatio = daysPassed / totalDays;
-            
-            return {
-                daysPassed,
-                totalDays,
-                timeElapsedRatio
-            };
-        }
-
-        // ------------------------------------------
-        // CHART RENDERING FUNCTIONS
-        // ------------------------------------------
-
-        function renderPieChart(sunnyTotal, deepalTotal) {
-            const total = sunnyTotal + deepalTotal;
-            PIE_CHART_ELEM.innerHTML = ''; 
-
-            if (total === 0) {
-                PIE_CHART_ELEM.innerHTML = `<div class="w-full h-full text-center text-xs text-gray-400 flex items-center justify-center">No data</div>`;
-                PIE_CHART_ELEM.classList.remove('relative');
-                return;
-            }
-
-            const sunnyRatio = sunnyTotal / total;
-            const sunnyPercent = Math.round(sunnyRatio * 100);
-            
-            const circumference = 219.9; // 2 * PI * 35 (radius)
-            const sunnyDash = circumference * sunnyRatio;
-            const deepalDash = circumference - sunnyDash;
-            
-            // Sunny is RED, Deepal is GREEN (Color Swap Request)
-            const sunnyColor = '#ef4444'; // Red-500
-            const deepalColor = '#10b981'; // Green-500
-
-            const svg = `
-                <svg viewBox="0 0 80 80" class="pie-chart-svg w-full h-full transform -rotate-90">
-                    <!-- Background circle for Deepal (Green) -->
-                    <circle cx="40" cy="40" r="35" fill="none" stroke="${deepalColor}" stroke-width="10" />
-
-                    <!-- Sunny's contribution (Red) - uses stroke-dasharray to define segment -->
-                    <circle cx="40" cy="40" r="35" fill="none" stroke="${sunnyColor}" stroke-width="10" 
-                        stroke-dasharray="${sunnyDash} ${deepalDash}" 
-                        stroke-dashoffset="0" />
-                </svg>
-                <div class="absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-700">${sunnyPercent}%</div>
-            `;
-
-            PIE_CHART_ELEM.classList.add('relative');
-            PIE_CHART_ELEM.innerHTML = svg;
-        }
-        
-        function renderDailyTrendChart(expenses) {
-            CHART_ELEM.innerHTML = '';
-            
-            const daysData = {};
-            const MS_PER_DAY = 24 * 60 * 60 * 1000;
-            // Use Dec 10, 2025 as "Today" for dummy data visualization consistency
-            const today = USE_DUMMY_DATA ? new Date(2025, 11, 10) : new Date(); 
-            today.setHours(0, 0, 0, 0);
-
-            // Populate daysData for the last DAYS_IN_TREND_CHART days
-            for (let i = 0; i < DAYS_IN_TREND_CHART; i++) {
-                const d = new Date(today.getTime() - i * MS_PER_DAY);
-                const month = (d.getMonth() + 1).toString().padStart(2, '0');
-                const day = d.getDate().toString().padStart(2, '0');
-                const year = d.getFullYear();
-                const normalizedKey = `${year}-${month}-${day}`;
-                
-                daysData[normalizedKey] = {
-                    total: 0,
-                    dateKey: normalizedKey,
-                    label: `${day}/${month}`,
-                    timestamp: d.getTime()
-                };
-            }
-
-            expenses.forEach(expense => {
-                // FIX: Use normalizeDate to get the YYYY-MM-DD key based on the expense date (MM/DD/YYYY part)
-                const normalizedKey = normalizeDate(expense.dateString); 
-                if (normalizedKey && daysData.hasOwnProperty(normalizedKey)) {
-                    daysData[normalizedKey].total += expense.amount;
-                }
-            });
-            
-            // Sort keys to ensure bars appear chronologically (left to right)
-            const sortedKeys = Object.keys(daysData).sort();
-            const trendData = sortedKeys.map(key => daysData[key]);
-            
-            const hasData = trendData.some(d => d.total > 0);
-
-            if (!hasData && !trendData.length) {
-                 CHART_ELEM.innerHTML = `<p id="trend-message" class="text-xs text-gray-500 w-full text-center">No recent spending in the last ${DAYS_IN_TREND_CHART} days.</p>`;
-                 CHART_ELEM.classList.remove('relative');
-                 return;
-            }
-
-            // Calculate max spending for bar scaling, including the budget limit
-            const maxSpending = Math.max(DAILY_CHART_BUDGET, ...trendData.map(d => d.total));
-            const budgetLineHeight = (DAILY_CHART_BUDGET / maxSpending) * 90; // Scale to 90% of chart height
-
-            CHART_ELEM.classList.add('relative');
-            
-            // Draw Budget Line (Rs. 2000)
-            const budgetLineHtml = `
-                <div class="absolute w-full border-t border-dashed border-red-400 z-10 top-0" style="height: 1px; top: ${95 - budgetLineHeight}%;" title="Daily Budget: ${formatCurrency(DAILY_CHART_BUDGET)}">
-                    <span class="absolute right-0 -top-2 text-xs font-medium text-red-500 bg-white px-1 rounded">₹${formatToK(DAILY_CHART_BUDGET)}</span> 
-                </div>
-            `;
-            CHART_ELEM.innerHTML += budgetLineHtml;
-
-            trendData.forEach(data => {
-                const heightPercentage = (data.total / maxSpending) * 90; 
-                
-                const isOverBudget = data.total > DAILY_CHART_BUDGET;
-                const barColorClass = isOverBudget ? 'bg-red-500' : 'bg-green-500';
-                
-                const expenseLabel = formatToK(data.total);
-
-                const labelColorClass = isOverBudget ? 'text-red-500' : 'text-green-500';
-
-                const barHtml = `
-                    <div class="flex flex-col items-center justify-end h-full flex-grow mx-1 relative" style="min-width: 8%;">
-                         <!-- Expense Label in K notation -->
-                        <span class="absolute -top-4 text-xs font-bold ${labelColorClass}">${expenseLabel}</span>
-                        
-                        <div class="w-full rounded-t-md ${barColorClass} transition-all duration-500 hover:opacity-75 shadow-md" 
-                             style="height: ${heightPercentage}%;"
-                             title="${data.label}: ${formatCurrency(data.total)}">
-                        </div>
-                        <span class="text-[10px] text-gray-500 mt-1">${data.label}</span>
-                    </div>
-                `;
-                CHART_ELEM.insertAdjacentHTML('beforeend', barHtml);
-            });
-        }
-
-        /**
-         * Renders the current month's spending summary, including MoM trend and percentage contribution.
-         */
-        function renderCategorySummary(currentMonthTransactions, prevMonthCategoryTotals, currentMonthTotal) {
-            CATEGORY_LIST_ELEM.innerHTML = '';
-            
-            if (currentMonthTransactions.length === 0) {
-                CATEGORY_LIST_ELEM.innerHTML = `<p class="p-4 text-center text-gray-500 italic">No category data for this month.</p>`;
-                return;
-            }
-
-            const categoryTotals = {};
-            currentMonthTransactions.forEach(expense => {
-                const category = expense.category || 'N/A';
-                
-                if (!categoryTotals[category]) {
-                    categoryTotals[category] = { total: 0, transactions: [] };
-                }
-
-                categoryTotals[category].total += expense.amount;
-                categoryTotals[category].transactions.push(expense);
-            });
-
-            // Convert to array for sorting (Highest expense first)
-            let sortedCategories = Object.keys(categoryTotals)
-                .map(category => ({
-                    name: category,
-                    ...categoryTotals[category],
-                    color: CATEGORY_COLORS[category] || 'bg-gray-400'
-                }))
-                .filter(cat => cat.total > 0)
-                .sort((a, b) => b.total - a.total); 
-
-            if (sortedCategories.length === 0) {
-                 CATEGORY_LIST_ELEM.innerHTML = `<p class="p-4 text-center text-gray-500 italic">No category data for this month.</p>`;
-                 return;
-            }
-
-            const maxCategoryTotal = sortedCategories[0].total;
-            const maxWidth = 90; 
-
-            sortedCategories.forEach(categoryData => {
-                const total = categoryData.total;
-                const percentage = (total / maxCategoryTotal) * maxWidth;
-                const totalFormatted = formatCurrency(total);
-                
-                // New: Percentage contribution to the MONTHLY total (Request 4)
-                const monthlyContributionPercent = currentMonthTotal > 0 ? ((total / currentMonthTotal) * 100).toFixed(0) : 0;
-                
-                // MoM Trend Calculation
-                const prevTotal = prevMonthCategoryTotals[categoryData.name] || 0;
-                const change = total - prevTotal;
-                let trendHtml = '';
-
-                if (prevTotal > 0 || total > 0) {
-                    // Calculate percentage change based on the larger of the two totals to avoid division by zero or inflated percentage if one value is tiny.
-                    // If prevTotal is 0, use total as the denominator to show change *from* zero.
-                    const denominator = Math.max(prevTotal, total) || 1; 
-                    const percentChange = (change / denominator) * 100;
-                    const sign = change >= 0 ? '+' : ''; 
-                    const icon = change > 0 ? 'M5 10l7-7m0 0l7 7m-7-7v18' : 'M19 14l-7 7m0 0l-7-7m7 7V3';
-                    const color = change > 0 ? 'text-red-500' : (change < 0 ? 'text-green-500' : 'text-gray-500');
-                    const trendText = `${sign}${percentChange.toFixed(0)}%`;
-
-                    trendHtml = `
-                        <span class="inline-flex items-center text-xs font-semibold ${color} ml-3">
-                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${icon}"></path></svg>
-                            ${trendText} MoM
-                        </span>
-                    `;
-                }
-
-                const itemHtml = `
-                    <div class="p-3 text-sm flex flex-col hover:bg-indigo-50 transition duration-100">
-                        <div class="flex items-center mb-1 justify-between">
-                            <!-- Category Name with Percentage Contribution (Request 4) -->
-                            <div class="flex items-center">
-                                <span class="font-semibold text-gray-800">${categoryData.name}</span>
-                                <span class="text-black font-normal text-sm ml-2">(${monthlyContributionPercent}%)</span>
-                                ${trendHtml}
-                            </div>
-                        </div>
-                        <!-- Horizontal Bar Graph -->
-                        <div class="w-full bg-gray-200 rounded-md h-6 relative overflow-hidden">
-                            <div class="h-full rounded-md ${categoryData.color} transition-all duration-500 flex items-center" 
-                                style="width: ${percentage.toFixed(1)}%">
-                                <!-- Label inside the bar -->
-                                <span class="category-bar-label pr-2 text-white/90">${totalFormatted}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                CATEGORY_LIST_ELEM.insertAdjacentHTML('beforeend', itemHtml);
-            });
-        }
-        
-        // ------------------------------------------
-        // DATA FETCHING & RENDERING
-        // ------------------------------------------
-
-        async function fetchExpenses() {
-             if (USE_DUMMY_DATA) {
-                // Determine current month key based on today (Dec 10, 2025) for consistency
-                const currentMonthDate = new Date(2025, 11, 10); 
-                
-                // Render dashboard with all dummy expenses, previous month category totals, and the requested history.
-                renderDashboard(
-                    DUMMY_EXPENSES, 
-                    DUMMY_PREV_MONTH_CATEGORY_TOTALS, 
-                    DUMMY_HISTORY
-                );
-                renderDailyTrendChart(DUMMY_EXPENSES); 
-                
-                // Ensure loading indicators are removed/hidden
-                if (LOADING_INDICATOR && EXPENSE_LIST.contains(LOADING_INDICATOR)) LOADING_INDICATOR.remove();
-                if (CATEGORY_LIST_ELEM && document.getElementById('category-loading')) document.getElementById('category-loading').remove();
-                
-                return;
-            }
-        }
-
-        function renderDashboard(allExpenses, prevMonthCategoryTotals = {}, pastMonthsHistory = {}) {
-            
-            // Use Dec 10, 2025 as "Today" for dummy data visualization consistency
-            const today = USE_DUMMY_DATA ? new Date(2025, 11, 10) : new Date(); 
-            const currentMonthKey = today.getFullYear() + '-' + (today.getMonth() + 1).toString().padStart(2, '0');
-            const currentMonthName = formatMonthKey(currentMonthKey);
-            
-            MONTH_NAME_ELEM.textContent = currentMonthName;
-
-            // 1. Group and calculate totals for all months
-            const monthlyData = {};
-
-            allExpenses.forEach(expense => {
-                const monthKey = getExpenseMonthKey(expense.dateString);
-                
-                if (!monthlyData[monthKey]) {
-                    monthlyData[monthKey] = {
-                        total: 0,
-                        sunnyTotal: 0,
-                        deepalTotal: 0,
-                        transactions: [],
-                        key: monthKey,
-                        name: formatMonthKey(monthKey)
-                    };
-                }
-
-                monthlyData[monthKey].total += expense.amount;
-                monthlyData[monthKey].transactions.push(expense);
-                
-                // Color Swap: Sunny (Red), Deepal (Green)
-                if (expense.enteredBy === 'Sunny') {
-                    monthlyData[monthKey].sunnyTotal += expense.amount;
-                } else if (expense.enteredBy === 'Deepal') {
-                    monthlyData[monthKey].deepalTotal += expense.amount;
-                }
-            });
-            
-            // Merge calculated history with explicit dummy history (Requested: 50K, 40K, 70K)
-            // This ensures the past month history data is included in the average calculation
-            Object.assign(monthlyData, Object.keys(pastMonthsHistory).reduce((acc, key) => {
-                if (!monthlyData[key] || monthlyData[key].total === 0) { // Only add if not already present or if present but with zero total
-                    acc[key] = {
-                        total: pastMonthsHistory[key],
-                        sunnyTotal: 0, 
-                        deepalTotal: 0, 
-                        transactions: [],
-                        key: key,
-                        name: formatMonthKey(key)
-                    };
-                }
-                return acc;
-            }, {}));
-            
-
-            const currentMonthData = monthlyData[currentMonthKey] || { total: 0, sunnyTotal: 0, deepalTotal: 0, transactions: [] };
-            
-            // Get all valid month keys for average calculation
-            const allMonthKeys = Object.keys(monthlyData).filter(key => key !== 'Invalid Date');
-
-            // Calculate Average Monthly Spent
-            let totalExpenseSum = allMonthKeys.reduce((sum, key) => sum + monthlyData[key].total, 0);
-            let totalMonthCount = allMonthKeys.length;
-            const averageMonthlySpent = totalMonthCount > 0 ? totalExpenseSum / totalMonthCount : 0;
-            AVG_MONTHLY_SPENT_ELEM.textContent = formatCurrency(averageMonthlySpent);
-
-
-            // 2. Render Current Month Summary & Budget
-            const { total, sunnyTotal, deepalTotal, transactions } = currentMonthData;
-
-            TOTAL_SPENT_ELEM.textContent = formatCurrency(total); 
-            
-            // Color Swap: Sunny (Red), Deepal (Green)
-            SUNNY_TOTAL_ELEM.textContent = formatCurrency(sunnyTotal);
-            SUNNY_TOTAL_ELEM.classList.remove('text-green-600', 'text-pink-600');
-            SUNNY_TOTAL_ELEM.classList.add(`text-${SUNNY_COLOR_ACCENT}-600`);
-
-            DEEPAL_TOTAL_ELEM.textContent = formatCurrency(deepalTotal);
-            DEEPAL_TOTAL_ELEM.classList.remove('text-green-600', 'text-pink-600');
-            DEEPAL_TOTAL_ELEM.classList.add(`text-${DEEPAL_COLOR_ACCENT}-600`);
-
-            // Render the Pie Chart
-            renderPieChart(sunnyTotal, deepalTotal);
-            
-            // Render Category Summary (with MoM trend and contribution percent)
-            renderCategorySummary(transactions, prevMonthCategoryTotals, total);
-
-            const availableBalance = MONTHLY_BUDGET - total;
-            
-            AVAILABLE_BALANCE_ELEM.textContent = formatCurrency(Math.abs(availableBalance));
-
-            AVAILABLE_BALANCE_ELEM.classList.remove('text-green-600', 'text-red-600', 'text-gray-600');
-            BUDGET_STATUS_ICON_ELEM.innerHTML = ''; 
-
-            if (availableBalance >= 0) {
-                AVAILABLE_BALANCE_ELEM.classList.add('text-green-600');
-                BUDGET_STATUS_ICON_ELEM.innerHTML = `
-                    <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                `;
-            } else {
-                AVAILABLE_BALANCE_ELEM.classList.add('text-red-600');
-                BUDGET_STATUS_ICON_ELEM.innerHTML = `
-                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                `;
-            }
-
-            // Render Budget Burn Rate
-            const spentRatio = total / MONTHLY_BUDGET;
-            const { timeElapsedRatio } = getBurnRateData(today);
-
-            const timePercent = formatPercentage(timeElapsedRatio);
-            const spentPercent = formatPercentage(spentRatio);
-            
-            TIME_PERCENT_ELEM.textContent = timePercent;
-            SPENT_PERCENT_ELEM.textContent = spentPercent;
-            
-            TIME_BAR_ELEM.style.width = timePercent;
-            
-            SPENT_BAR_ELEM.style.width = spentRatio > 1 ? '100%' : spentPercent;
-            SPENT_BAR_ELEM.classList.remove('bg-green-500', 'bg-red-500');
-
-            let tipText = `On track. ${formatCurrency(MONTHLY_BUDGET - total)} remaining.`;
-            if (spentRatio > 1) {
-                SPENT_BAR_ELEM.classList.add('bg-red-500');
-                tipText = `ALERT: You are ${formatCurrency(total - MONTHLY_BUDGET)} over the budget!`;
-            } else if (spentRatio > timeElapsedRatio) {
-                SPENT_BAR_ELEM.classList.add('bg-red-500');
-                tipText = `Warning: Spending (${spentPercent}) is faster than time elapsed (${timePercent}).`;
-            } else {
-                SPENT_BAR_ELEM.classList.add('bg-green-500');
-            }
-            BURN_RATE_TIP_ELEM.textContent = tipText;
-
-
-            // 3. Render Current Month Transaction List (Recent Transactions)
-            EXPENSE_LIST.innerHTML = ''; 
-            if (transactions.length === 0) {
-                EXPENSE_LIST.innerHTML = `<p class="p-4 text-center text-gray-500 italic">No expenses recorded for ${currentMonthName} yet.</p>`;
-            } else {
-                transactions.sort((a, b) => {
-                    // FIX: Sorting now uses the date part (MM/DD/YYYY) to create a Date object for correct chronological sorting.
-                    // Assuming the MM/DD/YYYY part of dateString is the user-entered transaction date.
-                    const dateA = new Date(a.dateString.split(' ')[0].replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$1-$2')); 
-                    const dateB = new Date(b.dateString.split(' ')[0].replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$1-$2')); 
-                    return dateB - dateA; // Sort newest first
-                });
-
-                transactions.forEach(expense => {
-                    // Color Swap: Sunny (Red), Deepal (Green)
-                    const isSunny = expense.enteredBy === 'Sunny';
-                    const colorAccent = isSunny ? SUNNY_COLOR_ACCENT : DEEPAL_COLOR_ACCENT;
-
-                    // Note: Dynamically generating Tailwind classes like 'text-red-600' and 'bg-red-50' requires 
-                    // that those classes are present in the final compiled CSS. By using the full string template 
-                    // below, Tailwind's JIT compilation (via the CDN) should pick them up.
-                    const colorClass = `text-${colorAccent}-600 bg-${colorAccent}-50`;
-                    const ringColor = `ring-${colorAccent}-300`;
-                    const spenderText = expense.enteredBy;
-                    
-                    const categoryColorClass = CATEGORY_COLORS[expense.category] || 'bg-gray-400';
-                    
-                    // Highlight large expense (Suggestion Feature)
-                    const isLargeExpense = expense.amount > DAILY_CHART_BUDGET;
-                    let warningHtml = '';
-                    if (isLargeExpense) {
-                        warningHtml = `
-                            <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold text-yellow-800 bg-yellow-100 ring-1 ring-yellow-400">
-                                ! Large Spend
-                            </span>
-                        `;
-                    }
-                    
-                    // Display only the date part of the dateString
-                    const transactionDate = expense.dateString.split(' ')[0];
-
-                    const itemHtml = `
-                        <div class="expense-item p-4 flex justify-between items-center transition duration-150 ease-in-out hover:bg-gray-50 ${isLargeExpense ? 'border-l-4 border-yellow-500' : ''}">
-                            <div class="flex-1 min-w-0 pr-4">
-                                <p class="text-sm font-semibold text-gray-900 truncate">${expense.details}</p>
-                                <p class="mt-1 text-xs text-gray-500 flex items-center">
-                                    <span class="w-2 h-2 rounded-full mr-2 ${categoryColorClass}"></span>
-                                    ${expense.category} · ${transactionDate}
-                                </p>
-                                <div class="flex items-center mt-1">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${colorClass} ring-1 ${ringColor}">${spenderText}</span>
-                                    ${warningHtml}
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-base font-extrabold text-gray-800">${formatCurrency(expense.amount)}</p>
-                            </div>
-                        </div>
-                    `;
-                    EXPENSE_LIST.insertAdjacentHTML('beforeend', itemHtml);
-                });
-            }
-            
-            // 4. Render Past Months Summary (History)
-            
-            const avgDisplay = document.getElementById('avg-expense-display');
-            const historyMessageHtml = document.getElementById('history-message');
-
-            // Clear previous history items (but keep avg-expense-display and history-message)
-            Array.from(HISTORY_CONTENT.querySelectorAll('.past-month-item')).forEach(item => item.remove());
-
-            const validHistoryKeys = allMonthKeys.filter(key => key !== currentMonthKey && key !== 'Invalid Date');
-            const sortedHistoryKeys = validHistoryKeys.sort().reverse(); 
-
-            if (sortedHistoryKeys.length === 0) {
-                if (historyMessageHtml) historyMessageHtml.style.display = 'block';
-            } else {
-                if (historyMessageHtml) historyMessageHtml.style.display = 'none';
-                
-                // Create a DocumentFragment to hold new elements for efficient insertion
-                const historyFragment = document.createDocumentFragment();
-
-                sortedHistoryKeys.forEach(key => {
-                    const data = monthlyData[key];
-                    const pastAvailableBalance = MONTHLY_BUDGET - data.total;
-                    let budgetMessage = '';
-                    let budgetClass = '';
-
-                    if (pastAvailableBalance >= 0) {
-                         budgetMessage = `Under budget by ${formatCurrency(pastAvailableBalance)}`;
-                         budgetClass = 'text-green-600';
-                    } else {
-                         budgetMessage = `OVER budget by ${formatCurrency(Math.abs(pastAvailableBalance))}`;
-                         budgetClass = 'text-red-600';
-                    }
-
-                    const itemHtml = `
-                        <div class="past-month-item p-4 text-sm bg-gray-50">
-                            <h3 class="font-bold text-gray-800 mb-1 text-sm">${data.name}</h3>
-                            <p class="text-base font-extrabold ${budgetClass}">
-                                ${formatCurrency(data.total)} 
-                                <span class="text-xs font-normal text-gray-500 block">${budgetMessage}</span>
-                            </p>
-                        </div>
-                    `;
-                    
-                    // Create an element and append it to the fragment
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = itemHtml;
-                    if (tempDiv.firstChild) {
-                        historyFragment.appendChild(tempDiv.firstChild);
-                    }
-                });
-                
-                // Insert the entire fragment after the avgDisplay element
-                if (avgDisplay) {
-                    avgDisplay.after(historyFragment);
-                }
-            }
-        }
-
-        // ------------------------------------------
-        // COLLAPSIBLE LOGIC
-        // ------------------------------------------
-        
-        function toggleCollapsible(header, content, arrow) {
-            const isClosed = content.classList.contains('hidden'); 
-            if (isClosed) {
-                content.classList.remove('hidden');
-                arrow.classList.add('rotate-90');
-                // Remove rounded corners from the bottom of the header when content opens
-                header.classList.remove('rounded-b-xl');
-            } else {
-                content.classList.add('hidden');
-                arrow.classList.remove('rotate-90');
-                // Restore rounded corners to the bottom of the header when content closes
-                header.classList.add('rounded-b-xl');
-            }
-        }
-        
-        // Add event listeners to collapsible headers
-        TRANSACTIONS_HEADER.addEventListener('click', () => toggleCollapsible(TRANSACTIONS_HEADER, EXPENSE_LIST, TRANSACTIONS_ARROW));
-        CATEGORY_HEADER.addEventListener('click', () => toggleCollapsible(CATEGORY_HEADER, CATEGORY_LIST_CONTENT, CATEGORY_ARROW));
-        CONTRIBUTION_HEADER.addEventListener('click', () => toggleCollapsible(CONTRIBUTION_HEADER, CONTRIBUTION_CONTENT, CONTRIBUTION_ARROW));
-        HISTORY_HEADER.addEventListener('click', () => toggleCollapsible(HISTORY_HEADER, HISTORY_CONTENT, HISTORY_ARROW));
-        
-        // Initialize fetching on page load
-        window.onload = function() {
-            fetchExpenses();
-            
-            // Set initial header rounded states (all closed by default)
-            TRANSACTIONS_HEADER.classList.add('rounded-b-xl');
-            CATEGORY_HEADER.classList.add('rounded-b-xl');
-            CONTRIBUTION_HEADER.classList.add('rounded-b-xl');
-            HISTORY_HEADER.classList.add('rounded-b-xl');
-        }
-    </script>
 </body>
 </html>
