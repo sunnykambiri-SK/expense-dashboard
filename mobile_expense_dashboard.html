@@ -6,7 +6,7 @@
     <title>Joint Expense Dashboard V3</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;600;700&display=swap" rel="stylesheet">
     <style>
         /* Custom styles for a clean, mobile-first look */
         body {
@@ -297,6 +297,8 @@
         };
         // --- DUMMY DATA FOR VISUALIZATION ---
         // Using December 2025 as the current month for stable visualization
+        // NOTE: The dateString format is MM/DD/YYYY HH:MM:SS (Timestamp from Form)
+        // For the purpose of this fix, we assume the expense date is implicitly derived from this timestamp's date part.
         const DUMMY_EXPENSES = [
             { dateString: '12/01/2025 10:00:00', details: 'Milk and bread', amount: 5000, enteredBy: 'Sunny', category: 'Grocery' },
             { dateString: '12/02/2025 14:30:00', details: 'Dinner date at Italian place', amount: 3500, enteredBy: 'Deepal', category: 'Outings Lunches/Dinners' },
@@ -376,6 +378,7 @@
 
         function getExpenseMonthKey(dateString) {
             try {
+                // Extract only the date part (MM/DD/YYYY)
                 const datePart = dateString.split(' ')[0];
                 const parts = datePart.split('/');
                 
@@ -390,12 +393,18 @@
             return 'Invalid Date';
         }
 
+        /**
+         * Normalizes the MM/DD/YYYY part of the dateString to YYYY-MM-DD for comparison and grouping.
+         * @param {string} dateString - e.g., '12/01/2025 10:00:00'
+         * @returns {string | null} Normalized date string or null.
+         */
         function normalizeDate(dateString) {
             try {
-                // Accepts MM/DD/YYYY HH:MM:SS format
+                // IMPORTANT FIX: Use only the date part (MM/DD/YYYY)
                 const datePart = dateString.split(' ')[0];
                 const parts = datePart.split('/'); // MM/DD/YYYY
                 if (parts.length === 3) {
+                    // Converts to YYYY-MM-DD format
                     return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
                 }
             } catch (e) {
@@ -521,7 +530,8 @@
             }
 
             expenses.forEach(expense => {
-                const normalizedKey = normalizeDate(expense.dateString);
+                // FIX: Use normalizeDate to get the YYYY-MM-DD key based on the expense date (MM/DD/YYYY part)
+                const normalizedKey = normalizeDate(expense.dateString); 
                 if (normalizedKey && daysData.hasOwnProperty(normalizedKey)) {
                     daysData[normalizedKey].total += expense.amount;
                 }
@@ -843,9 +853,10 @@
                 EXPENSE_LIST.innerHTML = `<p class="p-4 text-center text-gray-500 italic">No expenses recorded for ${currentMonthName} yet.</p>`;
             } else {
                 transactions.sort((a, b) => {
-                    // Use dateString directly for robust comparison
-                    const dateA = new Date(a.dateString.replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$1-$2')); 
-                    const dateB = new Date(b.dateString.replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$1-$2')); 
+                    // FIX: Sorting now uses the date part (MM/DD/YYYY) to create a Date object for correct chronological sorting.
+                    // Assuming the MM/DD/YYYY part of dateString is the user-entered transaction date.
+                    const dateA = new Date(a.dateString.split(' ')[0].replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$1-$2')); 
+                    const dateB = new Date(b.dateString.split(' ')[0].replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$1-$2')); 
                     return dateB - dateA; // Sort newest first
                 });
 
@@ -873,7 +884,9 @@
                             </span>
                         `;
                     }
-
+                    
+                    // Display only the date part of the dateString
+                    const transactionDate = expense.dateString.split(' ')[0];
 
                     const itemHtml = `
                         <div class="expense-item p-4 flex justify-between items-center transition duration-150 ease-in-out hover:bg-gray-50 ${isLargeExpense ? 'border-l-4 border-yellow-500' : ''}">
@@ -881,7 +894,7 @@
                                 <p class="text-sm font-semibold text-gray-900 truncate">${expense.details}</p>
                                 <p class="mt-1 text-xs text-gray-500 flex items-center">
                                     <span class="w-2 h-2 rounded-full mr-2 ${categoryColorClass}"></span>
-                                    ${expense.category} · ${expense.dateString.split(' ')[0]}
+                                    ${expense.category} · ${transactionDate}
                                 </p>
                                 <div class="flex items-center mt-1">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${colorClass} ring-1 ${ringColor}">${spenderText}</span>
