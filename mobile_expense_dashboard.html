@@ -263,23 +263,93 @@
     function renderTrend(expenses) {
       const container = document.getElementById('trend-chart');
       container.innerHTML = '';
-      const today = new Date(); today.setHours(0,0,0,0);
-      const days = {};
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // Sum totals per calendar day
+      const totalsByDay = {};
+      expenses.forEach(e => {
+        const d = new Date(e.dateISO || e.date);
+        d.setHours(0, 0, 0, 0);
+        const key = d.toISOString().slice(0, 10);
+        totalsByDay[key] = (totalsByDay[key] || 0) + e.amount;
+      });
+
+      // Build 10 days (oldest on the left, newest on the right)
+      const dayInfos = [];
+      for (let i = 9; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().slice(0, 10);
+        const total = totalsByDay[key] || 0;
+        const label = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0');
+        dayInfos.push({ key, total, label });
+      }
+
+      const maxVal = Math.max(...dayInfos.map(d => d.total), 1);
+
+      dayInfos.forEach(info => {
+        const val = info.total;
+        const pct = maxVal === 0 ? 0 : (val / maxVal) * 90; // up to 90% of column height
+        const over = val > DAILY_LIMIT;
+        const colorClass = over ? 'bg-red-500' : 'bg-indigo-500';
+
+        const wrap = document.createElement('div');
+        wrap.className = 'flex flex-col items-center justify-end flex-1 h-full';
+
+        const columnArea = document.createElement('div');
+        columnArea.className = 'flex-1 flex items-end w-full justify-center';
+
+        const colOuter = document.createElement('div');
+        colOuter.className = 'w-[60%] h-full flex items-end justify-center';
+
+        const col = document.createElement('div');
+        col.className = 'relative w-full rounded-t ' + colorClass;
+        col.style.height = pct + '%';
+
+        const valueSpan = document.createElement('span');
+        valueSpan.className = 'absolute inset-0 flex items-center justify-center text-[10px] text-white whitespace-nowrap';
+        valueSpan.style.transform = 'rotate(-90deg)';
+        valueSpan.style.transformOrigin = 'center';
+        valueSpan.textContent = val ? val.toLocaleString('en-IN') : '';
+
+        col.appendChild(valueSpan);
+        colOuter.appendChild(col);
+        columnArea.appendChild(colOuter);
+
+        const dateLabel = document.createElement('div');
+        dateLabel.className = 'h-5 flex items-center justify-center';
+        const dateSpan = document.createElement('span');
+        dateSpan.className = 'text-[10px] text-slate-500';
+        dateSpan.textContent = info.label;
+        dateLabel.appendChild(dateSpan);
+
+        wrap.appendChild(columnArea);
+        wrap.appendChild(dateLabel);
+        container.appendChild(wrap);
+      });
+    };
       for (let i = 0; i < 10; i++) {
         const d = new Date(today);
         d.setDate(d.getDate() - i);
-        const key = d.toISOString().slice(0,10);
-        days[key] = { total: 0, label: `${d.getDate()}/${d.getMonth()+1}` };
+        const key = d.toISOString().slice(0, 10);
+        days[key] = { total: 0, label: `${d.getDate()}/${d.getMonth() + 1}` };
       }
+
+      // Sum per day
       expenses.forEach(e => {
         const d = new Date(e.dateISO || e.date);
-        const key = d.toISOString().slice(0,10);
+        const key = d.toISOString().slice(0, 10);
         if (days[key]) days[key].total += e.amount;
       });
+
       const orderedKeys = Object.keys(days).sort();
       const values = orderedKeys.map(k => days[k].total);
       const maxVal = Math.max(DAILY_LIMIT, ...values, 1);
-      const limitHeight = (DAILY_LIMIT / maxVal) * 90;
+
+      // Dotted daily limit line (2K)
+      const limitHeight = (DAILY_LIMIT / maxVal) * 90; // percentage of container height
       const limitLine = document.createElement('div');
       limitLine.className = 'absolute left-0 right-0 dot-line border-t-2 border-red-500';
       limitLine.style.bottom = limitHeight + '%';
@@ -289,17 +359,20 @@
       label.style.bottom = limitHeight + '%';
       container.appendChild(limitLine);
       container.appendChild(label);
+
+      // Bars + dates
       orderedKeys.forEach(k => {
-        const { total, label } = days[k];
+        const { total, label: dayLabel } = days[k];
         const pct = (total / maxVal) * 90;
-        const bar = document.createElement('div');
-        bar.className = 'flex flex-col items-center flex-1';
         const over = total > DAILY_LIMIT;
         const colorClass = over ? 'bg-red-500' : 'bg-black';
+
+        const bar = document.createElement('div');
+        bar.className = 'flex flex-col items-center flex-1 h-full';
         bar.innerHTML = `
           <span class="text-[10px] text-slate-600 mb-1">${total ? total.toLocaleString('en-IN') : ''}</span>
           <div class="w-full ${colorClass} rounded-t" style="height:${pct}%"></div>
-          <span class="text-[10px] text-slate-500 mt-1">${label}</span>
+          <span class="text-[10px] text-slate-500 mt-1">${dayLabel}</span>
         `;
         container.appendChild(bar);
       });
@@ -319,7 +392,7 @@
         totals[cat] = (totals[cat] || 0) + e.amount;
         monthTotal += e.amount;
       });
-      const entries = Object.entries(totals).sort((a,b) => b[1]-a[1]);
+      const entries = Object.entries(totals).sort((a, b) => b[1] - a[1]);
       const max = entries[0] ? entries[0][1] : 1;
       entries.forEach(([cat, amt]) => {
         const widthPct = (amt / max) * 90;
@@ -349,11 +422,11 @@
         tbody.appendChild(tr);
         return;
       }
-      const sorted = [...monthExpenses].sort((a,b) => new Date(b.dateISO || b.date) - new Date(a.dateISO || a.date));
+      const sorted = [...monthExpenses].sort((a, b) => new Date(b.dateISO || b.date) - new Date(a.dateISO || a.date));
       sorted.forEach(e => {
         const tr = document.createElement('tr');
         const d = new Date(e.dateISO || e.date);
-        const dateLabel = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+        const dateLabel = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
         tr.innerHTML = `
           <td class="pr-2 whitespace-nowrap">${dateLabel}</td>
           <td class="pr-2 truncate max-w-[120px]">${e.details}</td>
@@ -405,14 +478,14 @@
         byMonth[key] = (byMonth[key] || 0) + e.amount;
       });
       const nowKey = getCurrentMonthKey(new Date());
-      const entries = Object.entries(byMonth).filter(([k]) => k !== nowKey).sort((a,b) => b[0].localeCompare(a[0]));
+      const entries = Object.entries(byMonth).filter(([k]) => k !== nowKey).sort((a, b) => b[0].localeCompare(a[0]));
       if (!entries.length) {
         body.innerHTML = '<p class="text-xs text-slate-500">No previous months.</p>';
         return;
       }
       entries.forEach(([key, amt]) => {
         const [year, month] = key.split('-').map(Number);
-        const d = new Date(year, month-1, 1);
+        const d = new Date(year, month - 1, 1);
         const name = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
         const row = document.createElement('div');
         row.className = 'flex justify-between';
@@ -453,7 +526,9 @@
       sel.querySelectorAll('option:not([value="all"])').forEach(o => o.remove());
       Array.from(set).sort().forEach(cat => {
         const opt = document.createElement('option');
-        opt.value = cat; opt.textContent = cat; sel.appendChild(opt);
+        opt.value = cat;
+        opt.textContent = cat;
+        sel.appendChild(opt);
       });
     }
 
