@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EXPENSE TRACKER</title>
-  <!-- App Icon for Home‑Screen Shortcut (INR symbol) -->
+  <!-- App Icon for Home-Screen Shortcut (INR symbol) -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%230059b3'/%3E%3Ctext x='50' y='63' font-size='55' text-anchor='middle' fill='white' font-family='Arial'%3E%E2%82%B9%3C/text%3E%3C/svg%3E" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -14,7 +14,6 @@
     .collapsible-arrow.open { transform: rotate(90deg); }
     .burn-bar-bg { height: 6px; }
     .burn-bar-fg { height: 6px; }
-    .dot-line { border-top-style: dotted; }
   </style>
 </head>
 <body class="bg-indigo-100 min-h-screen">
@@ -74,7 +73,7 @@
       </div>
     </section>
 
-    <!-- RECENT TRANSACTIONS -->
+    <!-- RECENT TRANSACTIONS (COLLAPSIBLE) -->
     <section id="tx-card" class="card rounded-xl bg-white">
       <button id="tx-header" class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800">
         <span>Recent Transactions</span>
@@ -189,7 +188,7 @@
       const rows = text.split(/\r?\n/).filter(r => r.trim().length);
       const out = [];
       for (let i = 1; i < rows.length; i++) {
-        const cols = rows[i].split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/).map(c => c.replace(/"/g, '').trim());
+        const cols = rows[i].split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/).map(c => c.replace(/\"/g, '').trim());
         if (!cols.length || !cols[0]) continue;
         const timestamp = cols[0] || '';
         const details = cols[1] || '';
@@ -212,7 +211,7 @@
     }
 
     function getCurrentMonthKey(date) {
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2,'0')}`;
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
     }
 
     function filterCurrentMonth(expenses) {
@@ -260,6 +259,7 @@
       }
     }
 
+    // NEW simplified Last 10D trend
     function renderTrend(expenses) {
       const container = document.getElementById('trend-chart');
       container.innerHTML = '';
@@ -291,7 +291,7 @@
 
       dayInfos.forEach(info => {
         const val = info.total;
-        const pct = maxVal === 0 ? 0 : (val / maxVal) * 90; // up to 90% of column height
+        const pct = maxVal === 0 ? 0 : (val / maxVal) * 90; // up to 90% of height
         const over = val > DAILY_LIMIT;
         const colorClass = over ? 'bg-red-500' : 'bg-indigo-500';
 
@@ -328,53 +328,6 @@
         wrap.appendChild(columnArea);
         wrap.appendChild(dateLabel);
         container.appendChild(wrap);
-      });
-    };
-      for (let i = 0; i < 10; i++) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        const key = d.toISOString().slice(0, 10);
-        days[key] = { total: 0, label: `${d.getDate()}/${d.getMonth() + 1}` };
-      }
-
-      // Sum per day
-      expenses.forEach(e => {
-        const d = new Date(e.dateISO || e.date);
-        const key = d.toISOString().slice(0, 10);
-        if (days[key]) days[key].total += e.amount;
-      });
-
-      const orderedKeys = Object.keys(days).sort();
-      const values = orderedKeys.map(k => days[k].total);
-      const maxVal = Math.max(DAILY_LIMIT, ...values, 1);
-
-      // Dotted daily limit line (2K)
-      const limitHeight = (DAILY_LIMIT / maxVal) * 90; // percentage of container height
-      const limitLine = document.createElement('div');
-      limitLine.className = 'absolute left-0 right-0 dot-line border-t-2 border-red-500';
-      limitLine.style.bottom = limitHeight + '%';
-      const label = document.createElement('span');
-      label.textContent = '2K';
-      label.className = 'absolute right-0 -translate-y-1 text-[10px] text-red-600 bg-white/80 px-1 rounded';
-      label.style.bottom = limitHeight + '%';
-      container.appendChild(limitLine);
-      container.appendChild(label);
-
-      // Bars + dates
-      orderedKeys.forEach(k => {
-        const { total, label: dayLabel } = days[k];
-        const pct = (total / maxVal) * 90;
-        const over = total > DAILY_LIMIT;
-        const colorClass = over ? 'bg-red-500' : 'bg-black';
-
-        const bar = document.createElement('div');
-        bar.className = 'flex flex-col items-center flex-1 h-full';
-        bar.innerHTML = `
-          <span class="text-[10px] text-slate-600 mb-1">${total ? total.toLocaleString('en-IN') : ''}</span>
-          <div class="w-full ${colorClass} rounded-t" style="height:${pct}%"></div>
-          <span class="text-[10px] text-slate-500 mt-1">${dayLabel}</span>
-        `;
-        container.appendChild(bar);
       });
     }
 
