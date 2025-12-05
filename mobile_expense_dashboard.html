@@ -16,7 +16,7 @@
     .collapsible-arrow { transition: transform 0.2s ease; }
     .collapsible-arrow.open { transform: rotate(90deg); }
 
-    /* 🔥 ONLY CHANGE YOU REQUESTED — burn bar thickness */
+    /* Burn bar thickness */
     .burn-bar-bg {
       height: 20px;
     }
@@ -59,7 +59,7 @@
       </div>
     </section>
 
-    <!-- BURN RATE (Thicker now) -->
+    <!-- BURN RATE -->
     <section id="burn-card" class="card rounded-xl bg-white px-4 py-3">
       <div class="flex justify-between text-[11px] text-slate-600 mb-1">
         <span>Time elapsed: <span id="burn-time">0%</span></span>
@@ -162,6 +162,8 @@
               <option value="all">All</option>
               <option value="Sunny">Sunny</option>
               <option value="Deepal">Deepal</option>
+              <option value="Nishka">Nishka</option>
+              <option value="Others">Others</option>
             </select>
           </div>
           <div>
@@ -189,8 +191,7 @@
   </main>
 
 <script>
-/* EVERYTHING BELOW IS EXACTLY YOUR ORIGINAL V6 LOGIC — UNCHANGED */
-
+/* CONFIG */
 const G_SHEET_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSg2yv6cZgH_d8f7gFlb3P44ZO3_DubKK0kzmnlDYdOkB2hWwv3TVUWUPnywnhG-_ECKvqUE21-aCRC/pub?output=csv";
 const MONTHLY_BUDGET=50000;
 const DAILY_LIMIT=2000;
@@ -202,121 +203,128 @@ const SAMPLE_CSV=`Timestamp,What was the money spent on,Amount,Entered By,Date,M
 
 let ALL_EXPENSES=[];
 
+/* PARSE CSV (column 3 is now 'Spent on' but position is same) */
 function parseCSV(text){
-const rows=text.split(/\r?\n/).filter(r=>r.trim().length),out=[];
-for(let i=1;i<rows.length;i++){
-const cols=rows[i].split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/).map(c=>c.replace(/"/g,'').trim());
-if(!cols.length||!cols[0])continue;
-const[timestamp,details,amount,enteredBy,dateRaw,category]=cols;
-out.push({
-timestamp,
-details,
-amount:Number((amount||'0').replace(/,/g,''))||0,
-enteredBy,
-date:dateRaw||timestamp.split(' ')[0],
-category:category||'OTHERS'
-});
-}
-return out;
+  const rows=text.split(/\r?\n/).filter(r=>r.trim().length),out=[];
+  for(let i=1;i<rows.length;i++){
+    const cols=rows[i].split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/).map(c=>c.replace(/"/g,'').trim());
+    if(!cols.length||!cols[0])continue;
+    const[timestamp,details,amount,enteredBy,dateRaw,category]=cols;
+    out.push({
+      timestamp,
+      details,
+      amount:Number((amount||'0').replace(/,/g,''))||0,
+      enteredBy,               // this now carries: Sunny / Deepal / Nishka / Others
+      date:dateRaw||timestamp.split(' ')[0],
+      category:category||'OTHERS'
+    });
+  }
+  return out;
 }
 
 function normalizeDateStr(d){
-const p=String(d).split('/');
-return p.length===3?`${p[2]}-${String(p[0]).padStart(2,'0')}-${String(p[1]).padStart(2,'0')}`:d;
+  const p=String(d).split('/');
+  return p.length===3?`${p[2]}-${String(p[0]).padStart(2,'0')}-${String(p[1]).padStart(2,'0')}`:d;
 }
 
 function getMonthKey(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
 
 function filterCurrentMonth(rows){
-const now=new Date(),m=getMonthKey(now);
-return rows.filter(e=>getMonthKey(new Date(e.dateISO||e.date))===m);
+  const now=new Date(),m=getMonthKey(now);
+  return rows.filter(e=>getMonthKey(new Date(e.dateISO||e.date))===m);
 }
 
 function setMonthPill(){
-document.getElementById('month-pill').textContent=
-new Date().toLocaleString('en-US',{month:'short'}).toLowerCase();
+  document.getElementById('month-pill').textContent=
+    new Date().toLocaleString('en-US',{month:'short'}).toLowerCase();
 }
 
 function renderSummary(exp){
-const t=exp.reduce((s,e)=>s+e.amount,0);
-document.getElementById('summary-total').textContent='₹'+t.toLocaleString('en-IN');
-document.getElementById('summary-balance').textContent='₹'+(MONTHLY_BUDGET-t).toLocaleString('en-IN');
+  const t=exp.reduce((s,e)=>s+e.amount,0);
+  document.getElementById('summary-total').textContent='₹'+t.toLocaleString('en-IN');
+  document.getElementById('summary-balance').textContent='₹'+(MONTHLY_BUDGET-t).toLocaleString('en-IN');
 }
 
 function renderBurn(exp){
-const total=exp.reduce((s,e)=>s+e.amount,0),
-now=new Date(),
-days=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),
-day=now.getDate(),
-timePct=Math.round(day/days*100),
-spentPct=Math.round(total/MONTHLY_BUDGET*100);
-document.getElementById('burn-time').textContent=timePct+'%';
-document.getElementById('burn-spent').textContent=spentPct+'%';
-document.getElementById('burn-time-bar').style.width=timePct+'%';
-const bar=document.getElementById('burn-spent-bar');
-bar.style.width=Math.min(spentPct,100)+'%';
-bar.classList.remove('bg-emerald-500','bg-red-500');
-bar.classList.add(spentPct>timePct?'bg-red-500':'bg-emerald-500');
+  const total=exp.reduce((s,e)=>s+e.amount,0),
+        now=new Date(),
+        days=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),
+        day=now.getDate(),
+        timePct=Math.round(day/days*100),
+        spentPct=Math.round(total/MONTHLY_BUDGET*100);
+  document.getElementById('burn-time').textContent=timePct+'%';
+  document.getElementById('burn-spent').textContent=spentPct+'%';
+  document.getElementById('burn-time-bar').style.width=timePct+'%';
+  const bar=document.getElementById('burn-spent-bar');
+  bar.style.width=Math.min(spentPct,100)+'%';
+  bar.classList.remove('bg-emerald-500','bg-red-500');
+  bar.classList.add(spentPct>timePct?'bg-red-500':'bg-emerald-500');
 }
 
+/* LAST 10D TREND */
 function renderTrend(rows){
-const c=document.getElementById('trend-chart');c.innerHTML='';
-const today=new Date();today.setHours(0,0,0,0);
+  const c=document.getElementById('trend-chart');c.innerHTML='';
+  const today=new Date();today.setHours(0,0,0,0);
 
-const totals={};
-rows.forEach(e=>{
-const d=new Date(e.dateISO||e.date);d.setHours(0,0,0,0);
-totals[d.toISOString().slice(0,10)]=(totals[d.toISOString().slice(0,10)]||0)+e.amount;
-});
+  const totals={};
+  rows.forEach(e=>{
+    const d=new Date(e.dateISO||e.date);d.setHours(0,0,0,0);
+    const key=d.toISOString().slice(0,10);
+    totals[key]=(totals[key]||0)+e.amount;
+  });
 
-const days=[];
-for(let i=9;i>=0;i--){
-const d=new Date(today);d.setDate(d.getDate()-i);
-days.push({
-key:d.toISOString().slice(0,10),
-label:`${String(d.getDate()).padStart(2,'0')}/${d.getMonth()+1}`,
-total:totals[d.toISOString().slice(0,10)]||0
-});
+  const days=[];
+  for(let i=9;i>=0;i--){
+    const d=new Date(today);d.setDate(d.getDate()-i);
+    const key=d.toISOString().slice(0,10);
+    days.push({
+      key,
+      label:`${String(d.getDate()).padStart(2,'0')}/${d.getMonth()+1}`,
+      total:totals[key]||0
+    });
+  }
+
+  const max=Math.max(...days.map(d=>d.total),1);
+
+  days.forEach(e=>{
+    const pct=max===0?0:e.total/max*80;
+    const box=document.createElement('div');
+    box.className='flex flex-col items-center flex-1 h-full';
+
+    const val=document.createElement('div');
+    val.className='text-[10px] text-slate-600';
+    val.style.transform='rotate(-90deg)';
+    val.textContent=e.total?e.total.toLocaleString('en-IN'):'';
+    box.appendChild(val);
+
+    const outer=document.createElement('div');
+    outer.className='flex-1 flex items-end w-full justify-center';
+    const col=document.createElement('div');
+    col.className='w-[60%] rounded-t '+(e.total>DAILY_LIMIT?'bg-red-500':'bg-indigo-500');
+    col.style.height=pct+'%';
+    outer.appendChild(col);
+    box.appendChild(outer);
+
+    const date=document.createElement('span');
+    date.className='text-[10px] text-slate-500 mt-1';
+    date.textContent=e.label;
+    box.appendChild(date);
+
+    c.appendChild(box);
+  });
 }
 
-const max=Math.max(...days.map(d=>d.total),1);
-
-days.forEach(e=>{
-const pct=max===0?0:e.total/max*80;
-const box=document.createElement('div');
-box.className='flex flex-col items-center flex-1 h-full';
-
-const val=document.createElement('div');
-val.className='text-[10px] text-slate-600';
-val.style.transform='rotate(-90deg)';
-val.textContent=e.total?e.total.toLocaleString('en-IN'):'';
-box.appendChild(val);
-
-const outer=document.createElement('div');
-outer.className='flex-1 flex items-end w-full justify-center';
-const col=document.createElement('div');
-col.className='w-[60%] rounded-t '+(e.total>DAILY_LIMIT?'bg-red-500':'bg-indigo-500');
-col.style.height=pct+'%';
-outer.appendChild(col);
-box.appendChild(outer);
-
-const date=document.createElement('span');
-date.className='text-[10px] text-slate-500 mt-1';
-date.textContent=e.label;
-box.appendChild(date);
-c.appendChild(box);
-});
-}
-
+/* CATEGORIES */
 function renderCategories(exp){
-const el=document.getElementById('cat-list');el.innerHTML='';
-if(!exp.length)return(el.innerHTML='<p class="text-xs text-slate-500">No data</p>');
-const totals={},sum=exp.reduce((s,e)=>s+e.amount,0);
-exp.forEach(e=>totals[e.category]=(totals[e.category]||0)+e.amount);
-Object.entries(totals).sort((a,b)=>b[1]-a[1]).forEach(([c,a])=>{
-const pct=(a/Math.max(...Object.values(totals)))*90,
-p=Math.round(a/sum*100);
-el.innerHTML+=`
+  const el=document.getElementById('cat-list');el.innerHTML='';
+  if(!exp.length)return(el.innerHTML='<p class="text-xs text-slate-500">No data</p>');
+  const totals={},sum=exp.reduce((s,e)=>s+e.amount,0);
+  exp.forEach(e=>totals[e.category]=(totals[e.category]||0)+e.amount);
+  const maxVal = Math.max(...Object.values(totals),1);
+  Object.entries(totals).sort((a,b)=>b[1]-a[1]).forEach(([c,a])=>{
+    const pct=(a/maxVal)*90,
+          p=Math.round(a/sum*100);
+    el.innerHTML+=`
 <div class="text-[11px]">
   <div class="flex justify-between mb-0.5">
     <span class="font-semibold text-slate-800">${c} (${p}%)</span>
@@ -327,124 +335,159 @@ el.innerHTML+=`
     </div>
   </div>
 </div>`;
-});
+  });
 }
 
+/* TRANSACTIONS */
 function renderTransactions(exp){
-const t=document.getElementById('tx-table-body');t.innerHTML='';
-if(!exp.length)return(t.innerHTML='<tr><td colspan="4" class="text-center text-xs text-slate-500 py-2">No expenses this month.</td></tr>');
-exp.sort((a,b)=>new Date(b.dateISO||b.date)-new Date(a.dateISO||a.date))
-.forEach(e=>{
-const d=new Date(e.dateISO||e.date);
-t.innerHTML+=`
+  const t=document.getElementById('tx-table-body');t.innerHTML='';
+  if(!exp.length)return(t.innerHTML='<tr><td colspan="4" class="text-center text-xs text-slate-500 py-2">No expenses this month.</td></tr>');
+  exp.sort((a,b)=>new Date(b.dateISO||b.date)-new Date(a.dateISO||a.date))
+    .forEach(e=>{
+      const d=new Date(e.dateISO||e.date);
+      t.innerHTML+=`
 <tr>
-<td class="pr-2">${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}</td>
-<td class="pr-2 truncate max-w-[120px]">${e.details}</td>
-<td class="pr-2">${e.enteredBy}</td>
-<td class="pr-2 text-right">₹${e.amount.toLocaleString('en-IN')}</td>
-</tr>`});
+  <td class="pr-2">${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}</td>
+  <td class="pr-2 truncate max-w-[120px]">${e.details}</td>
+  <td class="pr-2">${e.enteredBy}</td>
+  <td class="pr-2 text-right">₹${e.amount.toLocaleString('en-IN')}</td>
+</tr>`;
+    });
 }
 
+/* CONTRIBUTION — UPDATED FOR Sunny / Deepal / Nishka / Others (Option B) */
 function renderContribution(exp){
-const c=document.getElementById('contri-bar-wrapper');c.innerHTML='';
-let s=0,d=0;exp.forEach(e=>{
-if(e.enteredBy==='Sunny')s+=e.amount;
-if(e.enteredBy==='Deepal')d+=e.amount;
-});
-const t=s+d;if(!t)return(c.innerHTML='<div class="w-full text-center text-xs text-slate-500 py-1">No data</div>');
-c.innerHTML=`
-<div class="h-full bg-red-500 flex items-center justify-center text-[10px] text-white font-semibold" style="width:${(s/t*100)}%">${Math.round(s/t*100)}%</div>
-<div class="h-full bg-emerald-500 flex items-center justify-center text-[10px] text-white font-semibold" style="width:${(d/t*100)}%">${Math.round(d/t*100)}%</div>`;
+  const c=document.getElementById('contri-bar-wrapper');
+  c.innerHTML='';
+
+  // Totals by person
+  const totals = { Sunny: 0, Deepal: 0, Nishka: 0, Others: 0 };
+  exp.forEach(e => {
+    const who = e.enteredBy;
+    if (totals.hasOwnProperty(who)) {
+      totals[who] += e.amount;
+    }
+  });
+
+  // Only show people who actually have >0 spend
+  const entries = Object.entries(totals).filter(([, amt]) => amt > 0);
+  const total = entries.reduce((sum, [, amt]) => sum + amt, 0);
+
+  if (!total || !entries.length) {
+    c.innerHTML = '<div class="w-full text-center text-xs text-slate-500 py-1">No data</div>';
+    return;
+  }
+
+  const colors = {
+    Sunny: 'bg-red-500',
+    Deepal: 'bg-emerald-500',
+    Nishka: 'bg-purple-500',
+    Others: 'bg-gray-500'
+  };
+
+  entries.forEach(([name, amt]) => {
+    const pct = (amt / total) * 100;
+    const div = document.createElement('div');
+    div.className = `h-full flex items-center justify-center text-[10px] text-white font-semibold ${colors[name]}`;
+    div.style.width = pct + '%';
+    div.textContent = Math.round(pct) + '%';
+    c.appendChild(div);
+  });
 }
 
+/* HISTORY */
 function renderHistory(rows){
-const el=document.getElementById('hist-list');el.innerHTML='';
-const map={};
-rows.forEach(e=>{
-const k=getMonthKey(new Date(e.dateISO||e.date));
-map[k]=(map[k]||0)+e.amount;
-});
-const now=getMonthKey(new Date()),
-out=Object.entries(map).filter(([k])=>k!==now).sort((a,b)=>b[0].localeCompare(a[0]));
-if(!out.length)return(el.innerHTML='<p class="text-xs text-slate-500">No previous months.</p>');
-out.forEach(([k,a])=>{
-const[m,y]=k.split('-'),d=new Date(+m,+y-1,1);
-el.innerHTML+=`<div class="flex justify-between"><span>${d.toLocaleString('en-US',{month:'long',year:'numeric'})}</span><span class="font-semibold text-indigo-700">₹${a.toLocaleString('en-IN')}</span></div>`;
-});
+  const el=document.getElementById('hist-list');el.innerHTML='';
+  const map={};
+  rows.forEach(e=>{
+    const k=getMonthKey(new Date(e.dateISO||e.date));
+    map[k]=(map[k]||0)+e.amount;
+  });
+  const now=getMonthKey(new Date()),
+        out=Object.entries(map).filter(([k])=>k!==now).sort((a,b)=>b[0].localeCompare(a[0]));
+  if(!out.length)return(el.innerHTML='<p class="text-xs text-slate-500">No previous months.</p>');
+  out.forEach(([k,a])=>{
+    const[year,month]=k.split('-').map(Number);
+    const d=new Date(year,month-1,1);
+    el.innerHTML+=`<div class="flex justify-between"><span>${d.toLocaleString('en-US',{month:'long',year:'numeric'})}</span><span class="font-semibold text-indigo-700">₹${a.toLocaleString('en-IN')}</span></div>`;
+  });
 }
 
+/* COLLAPSIBLES */
 function setupCollapsibles(){
-[['cat','cat'],['tx','tx'],['hist','hist'],['filter','filter']]
-.forEach(([h,a])=>{
-document.getElementById(`${h}-header`).addEventListener('click',()=>{
-document.getElementById(`${h}-body`).classList.toggle('hidden');
-document.getElementById(`${a}-arrow`).classList.toggle('open');
-});
-});
+  [['cat','cat'],['tx','tx'],['hist','hist'],['filter','filter']]
+    .forEach(([id,a])=>{
+      document.getElementById(`${id}-header`).addEventListener('click',()=>{
+        document.getElementById(`${id}-body`).classList.toggle('hidden');
+        document.getElementById(`${a}-arrow`).classList.toggle('open');
+      });
+    });
 }
 
+/* FILTERS */
 function populateCategoryFilter(rows){
-const sel=document.getElementById('filter-category'),set=new Set();
-sel.querySelectorAll('option:not([value="all"])').forEach(o=>o.remove());
-rows.forEach(e=>set.add(e.category));
-[...set].sort().forEach(c=>{
-const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);
-});
+  const sel=document.getElementById('filter-category'),set=new Set();
+  sel.querySelectorAll('option:not([value="all"])').forEach(o=>o.remove());
+  rows.forEach(e=>set.add(e.category));
+  [...set].sort().forEach(c=>{
+    const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);
+  });
 }
 
 function applyFilters(){
-const f=document.getElementById('filter-from').value,
-t=document.getElementById('filter-to').value,
-cat=document.getElementById('filter-category').value,
-p=document.getElementById('filter-person').value,
-m=Number(document.getElementById('filter-min').value||0);
-return ALL_EXPENSES.filter(e=>{
-const d=new Date(e.dateISO||e.date);
-if(f&&d<new Date(f+'T00:00:00'))return false;
-if(t&&d>new Date(t+'T23:59:59'))return false;
-if(cat!=='all'&&e.category!==cat)return false;
-if(p!=='all'&&e.enteredBy!==p)return false;
-if(e.amount<m)return false;
-return true;
-});
+  const f=document.getElementById('filter-from').value,
+        t=document.getElementById('filter-to').value,
+        cat=document.getElementById('filter-category').value,
+        p=document.getElementById('filter-person').value,
+        m=Number(document.getElementById('filter-min').value||0);
+  return ALL_EXPENSES.filter(e=>{
+    const d=new Date(e.dateISO||e.date);
+    if(f&&d<new Date(f+'T00:00:00'))return false;
+    if(t&&d>new Date(t+'T23:59:59'))return false;
+    if(cat!=='all'&&e.category!==cat)return false;
+    if(p!=='all'&&e.enteredBy!==p)return false;
+    if(e.amount<m)return false;
+    return true;
+  });
 }
 
+/* LOAD + INIT */
 async function loadExpenses(){
-setMonthPill();
-let txt,useSample=false;
-try{
-const r=await fetch(G_SHEET_URL,{cache:'no-store'});
-if(!r.ok)throw 0;txt=await r.text();
-}catch{
-txt=SAMPLE_CSV;useSample=true;
-}
-if(useSample)document.getElementById('data-badge').classList.remove('hidden');
-ALL_EXPENSES=parseCSV(txt).map(e=>({...e,dateISO:normalizeDateStr(e.date)}));
+  setMonthPill();
+  let txt,useSample=false;
+  try{
+    const r=await fetch(G_SHEET_URL,{cache:'no-store'});
+    if(!r.ok)throw 0;txt=await r.text();
+  }catch{
+    txt=SAMPLE_CSV;useSample=true;
+  }
+  if(useSample)document.getElementById('data-badge').classList.remove('hidden');
+  ALL_EXPENSES=parseCSV(txt).map(e=>({...e,dateISO:normalizeDateStr(e.date)}));
 }
 
 async function init(){
-await loadExpenses();
-populateCategoryFilter(ALL_EXPENSES);
-const rows=applyFilters(),mon=filterCurrentMonth(rows);
-renderSummary(mon);
-renderBurn(mon);
-renderTrend(rows);
-renderCategories(mon);
-renderTransactions(mon);
-renderContribution(mon);
-renderHistory(rows);
-setupCollapsibles();
+  await loadExpenses();
+  populateCategoryFilter(ALL_EXPENSES);
+  const rows=applyFilters(),mon=filterCurrentMonth(rows);
+  renderSummary(mon);
+  renderBurn(mon);
+  renderTrend(rows);
+  renderCategories(mon);
+  renderTransactions(mon);
+  renderContribution(mon);
+  renderHistory(rows);
+  setupCollapsibles();
 
-document.getElementById('filter-apply').addEventListener('click',()=>{
-const rows=applyFilters(),mon=filterCurrentMonth(rows);
-renderSummary(mon);
-renderBurn(mon);
-renderTrend(rows);
-renderCategories(mon);
-renderTransactions(mon);
-renderContribution(mon);
-renderHistory(rows);
-});
+  document.getElementById('filter-apply').addEventListener('click',()=>{
+    const rows=applyFilters(),mon=filterCurrentMonth(rows);
+    renderSummary(mon);
+    renderBurn(mon);
+    renderTrend(rows);
+    renderCategories(mon);
+    renderTransactions(mon);
+    renderContribution(mon);
+    renderHistory(rows);
+  });
 }
 
 init();
