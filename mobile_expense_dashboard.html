@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EXPENSE TRACKER</title>
 
-  <!-- INR App Icon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%230059b3'/%3E%3Ctext x='50' y='63' font-size='55' text-anchor='middle' fill='white' font-family='Arial'%3E%E2%82%B9%3C/text%3E%3C/svg%3E" />
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -16,20 +15,15 @@
     .collapsible-arrow { transition: transform 0.2s ease; }
     .collapsible-arrow.open { transform: rotate(90deg); }
 
-    /* Burn bar thickness */
-    .burn-bar-bg {
-      height: 20px;
-    }
-    .burn-bar-fg {
-      height: 20px;
-    }
+    /* Updated burn thickness */
+    .burn-bar-bg { height: 20px; }
+    .burn-bar-fg { height: 20px; }
   </style>
 </head>
 
 <body class="bg-indigo-100 min-h-screen">
   <main class="max-w-xl mx-auto px-4 py-4 space-y-4">
 
-    <!-- HEADER -->
     <header class="flex items-center justify-between mb-2">
       <h1 class="text-lg font-extrabold tracking-wide text-slate-900">EXPENSE TRACKER</h1>
       <div class="flex items-center gap-2">
@@ -40,7 +34,6 @@
       </div>
     </header>
 
-    <!-- SUMMARY -->
     <section id="summary-card" class="card rounded-xl bg-[#f5f0e6] px-4 py-3">
       <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
         <span>THIS MONTH</span>
@@ -51,7 +44,6 @@
           <div class="text-xs font-semibold text-indigo-700 mb-0.5">Total Spent</div>
           <div id="summary-total" class="text-xl font-extrabold text-indigo-700">₹0</div>
         </div>
-
         <div class="flex-1 text-right">
           <div class="text-xs font-semibold text-slate-800 mb-0.5">Balance</div>
           <div id="summary-balance" class="text-xl font-extrabold text-black">₹0</div>
@@ -59,26 +51,22 @@
       </div>
     </section>
 
-    <!-- BURN RATE -->
     <section id="burn-card" class="card rounded-xl bg-white px-4 py-3">
       <div class="flex justify-between text-[11px] text-slate-600 mb-1">
         <span>Time elapsed: <span id="burn-time">0%</span></span>
         <span>Burn: <span id="burn-spent">0%</span></span>
       </div>
-
       <div class="relative w-full bg-slate-200 rounded-full burn-bar-bg overflow-hidden">
         <div id="burn-time-bar" class="absolute left-0 top-0 bg-blue-400/70 burn-bar-fg rounded-full" style="width:0%"></div>
         <div id="burn-spent-bar" class="absolute left-0 top-0 burn-bar-fg rounded-full bg-emerald-500" style="width:0%"></div>
       </div>
     </section>
 
-    <!-- LAST 10D TREND -->
     <section id="trend-card" class="card rounded-xl bg-white px-4 py-3">
       <h2 class="text-sm font-semibold text-slate-800 mb-2">Last 10D trend</h2>
       <div id="trend-chart" class="relative flex items-end space-x-1 h-40"></div>
     </section>
 
-    <!-- CATEGORY (COLLAPSIBLE) -->
     <section class="card rounded-xl bg-white">
       <button id="cat-header" class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800">
         <span>Category</span>
@@ -89,7 +77,6 @@
       </div>
     </section>
 
-    <!-- RECENT TRANSACTIONS -->
     <section id="tx-card" class="card rounded-xl bg-white">
       <button id="tx-header" class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800">
         <span>Recent Transactions</span>
@@ -113,17 +100,15 @@
       </div>
     </section>
 
-    <!-- CONTRIBUTION -->
+    <!-- 🔥 CONTRIBUTION WITH NEW LEGEND -->
     <section id="contri-card" class="card rounded-xl bg-white px-4 py-3">
       <h2 class="text-sm font-semibold text-slate-800 mb-2">Contribution</h2>
-      <div class="flex justify-between text-[11px] text-slate-400 mb-1">
-        <span>Sunny</span>
-        <span>Deepal</span>
-      </div>
+
+      <div id="contri-legend" class="flex flex-wrap gap-1 mb-2"></div>
+
       <div class="w-full h-5 bg-slate-200 rounded-full overflow-hidden flex" id="contri-bar-wrapper"></div>
     </section>
 
-    <!-- HISTORY -->
     <section class="card rounded-xl bg-white">
       <button id="hist-header" class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800">
         <span>History</span>
@@ -134,7 +119,6 @@
       </div>
     </section>
 
-    <!-- FILTERS -->
     <section class="card rounded-xl bg-white">
       <button id="filter-header" class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800">
         <span>Filters</span>
@@ -179,7 +163,6 @@
       </div>
     </section>
 
-    <!-- ADD BUTTON -->
     <a href="https://docs.google.com/forms/d/1hnsgJRRX_1vcoo9bmIXVzTih__gkM_ltXX5DvxLtkGc/viewform"
        target="_blank"
        class="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-indigo-600 text-white shadow-xl">
@@ -191,240 +174,237 @@
   </main>
 
 <script>
-/* CONFIG */
 const G_SHEET_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSg2yv6cZgH_d8f7gFlb3P44ZO3_DubKK0kzmnlDYdOkB2hWwv3TVUWUPnywnhG-_ECKvqUE21-aCRC/pub?output=csv";
 const MONTHLY_BUDGET=50000;
 const DAILY_LIMIT=2000;
+
 const SAMPLE_CSV=`Timestamp,What was the money spent on,Amount,Entered By,Date,Main Expense Category
 12/2/2025 23:19:46,Food,300,Sunny,12/2/2025,Food
-12/3/2025 09:10:00,Taxi,250,Deepal,12/3/2025,Taxi / Commute
-12/3/2025 20:30:00,Dinner,1200,Sunny,12/3/2025,Outings Lunches/Dinners
-12/4/2025 11:05:00,Grocery,800,Deepal,12/4/2025,Grocery`;
+12/3/2025 09:10:00,Taxi,250,Deepal,12/3/2025,Taxi / Commute`;
 
 let ALL_EXPENSES=[];
 
-/* PARSE CSV (column 3 is now 'Spent on' but position is same) */
-function parseCSV(text){
-  const rows=text.split(/\r?\n/).filter(r=>r.trim().length),out=[];
+function parseCSV(txt){
+  const rows=txt.split(/\r?\n/).filter(r=>r.trim()),out=[];
   for(let i=1;i<rows.length;i++){
-    const cols=rows[i].split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/).map(c=>c.replace(/"/g,'').trim());
-    if(!cols.length||!cols[0])continue;
-    const[timestamp,details,amount,enteredBy,dateRaw,category]=cols;
+    const c=rows[i].split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/).map(v=>v.replace(/"/g,'').trim());
+    if(!c[0])continue;
     out.push({
-      timestamp,
-      details,
-      amount:Number((amount||'0').replace(/,/g,''))||0,
-      enteredBy,               // this now carries: Sunny / Deepal / Nishka / Others
-      date:dateRaw||timestamp.split(' ')[0],
-      category:category||'OTHERS'
+      timestamp:c[0],
+      details:c[1],
+      amount:Number((c[2]||'0').replace(/,/g,''))||0,
+      enteredBy:c[3],
+      date:c[4]||c[0].split(' ')[0],
+      category:c[5]||'OTHERS'
     });
   }
   return out;
 }
 
-function normalizeDateStr(d){
-  const p=String(d).split('/');
-  return p.length===3?`${p[2]}-${String(p[0]).padStart(2,'0')}-${String(p[1]).padStart(2,'0')}`:d;
+function normalize(d){
+  const p=d.split('/');
+  return p.length===3?`${p[2]}-${p[0].padStart(2,'0')}-${p[1].padStart(2,'0')}`:d;
 }
 
-function getMonthKey(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
+function monthKey(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
 
-function filterCurrentMonth(rows){
-  const now=new Date(),m=getMonthKey(now);
-  return rows.filter(e=>getMonthKey(new Date(e.dateISO||e.date))===m);
+function filterCurrent(rows){
+  const now=new Date(),m=monthKey(now);
+  return rows.filter(e=>monthKey(new Date(e.dateISO||e.date))===m);
 }
 
-function setMonthPill(){
+function setMonthLabel(){
   document.getElementById('month-pill').textContent=
     new Date().toLocaleString('en-US',{month:'short'}).toLowerCase();
 }
 
-function renderSummary(exp){
-  const t=exp.reduce((s,e)=>s+e.amount,0);
-  document.getElementById('summary-total').textContent='₹'+t.toLocaleString('en-IN');
-  document.getElementById('summary-balance').textContent='₹'+(MONTHLY_BUDGET-t).toLocaleString('en-IN');
+function renderSummary(list){
+  const total=list.reduce((a,b)=>a+b.amount,0);
+  document.getElementById('summary-total').textContent='₹'+total.toLocaleString('en-IN');
+  document.getElementById('summary-balance').textContent='₹'+(MONTHLY_BUDGET-total).toLocaleString('en-IN');
 }
 
-function renderBurn(exp){
-  const total=exp.reduce((s,e)=>s+e.amount,0),
-        now=new Date(),
-        days=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),
-        day=now.getDate(),
-        timePct=Math.round(day/days*100),
-        spentPct=Math.round(total/MONTHLY_BUDGET*100);
-  document.getElementById('burn-time').textContent=timePct+'%';
-  document.getElementById('burn-spent').textContent=spentPct+'%';
-  document.getElementById('burn-time-bar').style.width=timePct+'%';
+function renderBurn(list){
+  const total=list.reduce((a,b)=>a+b.amount,0),
+        now=new Date(),days=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),
+        d=now.getDate(),
+        time=Math.round(d/days*100),spent=Math.round(total/MONTHLY_BUDGET*100);
+
+  document.getElementById('burn-time').textContent=time+'%';
+  document.getElementById('burn-spent').textContent=spent+'%';
+
+  document.getElementById('burn-time-bar').style.width=time+'%';
+
   const bar=document.getElementById('burn-spent-bar');
-  bar.style.width=Math.min(spentPct,100)+'%';
+  bar.style.width=Math.min(spent,100)+'%';
   bar.classList.remove('bg-emerald-500','bg-red-500');
-  bar.classList.add(spentPct>timePct?'bg-red-500':'bg-emerald-500');
+  bar.classList.add(spent>time?'bg-red-500':'bg-emerald-500');
 }
 
-/* LAST 10D TREND */
 function renderTrend(rows){
-  const c=document.getElementById('trend-chart');c.innerHTML='';
+  const wrap=document.getElementById('trend-chart');wrap.innerHTML='';
   const today=new Date();today.setHours(0,0,0,0);
 
   const totals={};
   rows.forEach(e=>{
     const d=new Date(e.dateISO||e.date);d.setHours(0,0,0,0);
-    const key=d.toISOString().slice(0,10);
-    totals[key]=(totals[key]||0)+e.amount;
+    totals[d.toISOString().slice(0,10)]=(totals[d.toISOString().slice(0,10)]||0)+e.amount;
   });
 
-  const days=[];
+  const arr=[];
   for(let i=9;i>=0;i--){
     const d=new Date(today);d.setDate(d.getDate()-i);
     const key=d.toISOString().slice(0,10);
-    days.push({
-      key,
-      label:`${String(d.getDate()).padStart(2,'0')}/${d.getMonth()+1}`,
-      total:totals[key]||0
-    });
+    arr.push({label:`${String(d.getDate()).padStart(2,'0')}/${d.getMonth()+1}`,total:totals[key]||0});
   }
 
-  const max=Math.max(...days.map(d=>d.total),1);
+  const max=Math.max(...arr.map(x=>x.total),1);
 
-  days.forEach(e=>{
-    const pct=max===0?0:e.total/max*80;
-    const box=document.createElement('div');
-    box.className='flex flex-col items-center flex-1 h-full';
-
-    const val=document.createElement('div');
-    val.className='text-[10px] text-slate-600';
-    val.style.transform='rotate(-90deg)';
-    val.textContent=e.total?e.total.toLocaleString('en-IN'):'';
-    box.appendChild(val);
-
-    const outer=document.createElement('div');
-    outer.className='flex-1 flex items-end w-full justify-center';
+  arr.forEach(item=>{
     const col=document.createElement('div');
-    col.className='w-[60%] rounded-t '+(e.total>DAILY_LIMIT?'bg-red-500':'bg-indigo-500');
-    col.style.height=pct+'%';
-    outer.appendChild(col);
-    box.appendChild(outer);
+    col.className='flex flex-col items-center flex-1 h-full';
 
-    const date=document.createElement('span');
-    date.className='text-[10px] text-slate-500 mt-1';
-    date.textContent=e.label;
-    box.appendChild(date);
+    const value=document.createElement('div');
+    value.className='text-[10px] text-slate-600';
+    value.style.transform='rotate(-90deg)';
+    value.textContent=item.total||'';
+    col.appendChild(value);
 
-    c.appendChild(box);
+    const barWrap=document.createElement('div');
+    barWrap.className='flex-1 flex items-end w-full justify-center';
+
+    const bar=document.createElement('div');
+    bar.className=`w-[60%] rounded-t ${item.total>DAILY_LIMIT?'bg-red-500':'bg-indigo-500'}`;
+    bar.style.height=(item.total/max*80)+'%';
+    barWrap.appendChild(bar);
+    col.appendChild(barWrap);
+
+    const label=document.createElement('span');
+    label.className='text-[10px] text-slate-500 mt-1';
+    label.textContent=item.label;
+    col.appendChild(label);
+
+    wrap.appendChild(col);
   });
 }
 
-/* CATEGORIES */
-function renderCategories(exp){
+function renderCategories(list){
   const el=document.getElementById('cat-list');el.innerHTML='';
-  if(!exp.length)return(el.innerHTML='<p class="text-xs text-slate-500">No data</p>');
-  const totals={},sum=exp.reduce((s,e)=>s+e.amount,0);
-  exp.forEach(e=>totals[e.category]=(totals[e.category]||0)+e.amount);
-  const maxVal = Math.max(...Object.values(totals),1);
-  Object.entries(totals).sort((a,b)=>b[1]-a[1]).forEach(([c,a])=>{
-    const pct=(a/maxVal)*90,
-          p=Math.round(a/sum*100);
+  if(!list.length)return(el.innerHTML='<p class="text-xs text-slate-500">No data</p>');
+  
+  const totals={},sum=list.reduce((a,b)=>a+b.amount,0);
+  list.forEach(e=>totals[e.category]=(totals[e.category]||0)+e.amount);
+
+  const max=Math.max(...Object.values(totals),1);
+
+  Object.entries(totals).sort((a,b)=>b[1]-a[1]).forEach(([name,val])=>{
+    const pct=val/max*90,share=Math.round(val/sum*100);
     el.innerHTML+=`
 <div class="text-[11px]">
   <div class="flex justify-between mb-0.5">
-    <span class="font-semibold text-slate-800">${c} (${p}%)</span>
+    <span class="font-semibold text-slate-800">${name} (${share}%)</span>
   </div>
   <div class="w-full bg-slate-200 h-4 rounded-md overflow-hidden">
     <div class="h-4 bg-indigo-500 rounded-md relative" style="width:${pct}%">
-      <span class="absolute right-1 top-1/2 -translate-y-1/2 text-[10px] text-white font-semibold">₹${a.toLocaleString('en-IN')}</span>
+      <span class="absolute right-1 top-1/2 -translate-y-1/2 text-[10px] text-white font-semibold">₹${val.toLocaleString('en-IN')}</span>
     </div>
   </div>
 </div>`;
   });
 }
 
-/* TRANSACTIONS */
-function renderTransactions(exp){
-  const t=document.getElementById('tx-table-body');t.innerHTML='';
-  if(!exp.length)return(t.innerHTML='<tr><td colspan="4" class="text-center text-xs text-slate-500 py-2">No expenses this month.</td></tr>');
-  exp.sort((a,b)=>new Date(b.dateISO||b.date)-new Date(a.dateISO||a.date))
+function renderTransactions(list){
+  const el=document.getElementById('tx-table-body');el.innerHTML='';
+  if(!list.length)return(el.innerHTML='<tr><td colspan="4" class="text-center text-xs text-slate-500 py-2">No expenses this month.</td></tr>');
+  
+  list.sort((a,b)=>new Date(b.dateISO||b.date)-new Date(a.dateISO||a.date))
     .forEach(e=>{
       const d=new Date(e.dateISO||e.date);
-      t.innerHTML+=`
+      el.innerHTML+=`
 <tr>
-  <td class="pr-2">${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}</td>
-  <td class="pr-2 truncate max-w-[120px]">${e.details}</td>
-  <td class="pr-2">${e.enteredBy}</td>
-  <td class="pr-2 text-right">₹${e.amount.toLocaleString('en-IN')}</td>
+  <td>${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}</td>
+  <td>${e.details}</td>
+  <td>${e.enteredBy}</td>
+  <td class="text-right">₹${e.amount.toLocaleString('en-IN')}</td>
 </tr>`;
     });
 }
 
-/* CONTRIBUTION — UPDATED FOR Sunny / Deepal / Nishka / Others (Option B) */
-function renderContribution(exp){
-  const c=document.getElementById('contri-bar-wrapper');
-  c.innerHTML='';
+/* 🔥 UPDATED CONTRIBUTION WITH LEGEND */
+function renderContribution(list){
+  const wrap=document.getElementById('contri-bar-wrapper'),
+        legend=document.getElementById('contri-legend');
+  
+  wrap.innerHTML='';
+  legend.innerHTML='';
 
-  // Totals by person
-  const totals = { Sunny: 0, Deepal: 0, Nishka: 0, Others: 0 };
-  exp.forEach(e => {
-    const who = e.enteredBy;
-    if (totals.hasOwnProperty(who)) {
-      totals[who] += e.amount;
-    }
-  });
+  const totals={Sunny:0,Deepal:0,Nishka:0,Others:0};
+  list.forEach(e=>{if(totals[e.enteredBy]!=null)totals[e.enteredBy]+=e.amount;});
 
-  // Only show people who actually have >0 spend
-  const entries = Object.entries(totals).filter(([, amt]) => amt > 0);
-  const total = entries.reduce((sum, [, amt]) => sum + amt, 0);
+  const used=Object.entries(totals).filter(([,v])=>v>0);
+  const total=used.reduce((a,[,v])=>a+v,0);
 
-  if (!total || !entries.length) {
-    c.innerHTML = '<div class="w-full text-center text-xs text-slate-500 py-1">No data</div>';
+  if(!total){
+    wrap.innerHTML='<div class="w-full text-center text-xs text-slate-500 py-1">No data</div>';
     return;
   }
 
-  const colors = {
-    Sunny: 'bg-red-500',
-    Deepal: 'bg-emerald-500',
-    Nishka: 'bg-purple-500',
-    Others: 'bg-gray-500'
+  const colors={
+    Sunny:'bg-red-500',
+    Deepal:'bg-emerald-500',
+    Nishka:'bg-purple-500',
+    Others:'bg-gray-500'
   };
 
-  entries.forEach(([name, amt]) => {
-    const pct = (amt / total) * 100;
-    const div = document.createElement('div');
-    div.className = `h-full flex items-center justify-center text-[10px] text-white font-semibold ${colors[name]}`;
-    div.style.width = pct + '%';
-    div.textContent = Math.round(pct) + '%';
-    c.appendChild(div);
+  // Create legend badges (Size S, Style B)
+  used.forEach(([name])=>{
+    const badge=document.createElement('div');
+    badge.className=`px-2 py-[2px] ${colors[name]} text-white text-[10px] rounded-md`;
+    badge.textContent=name;
+    legend.appendChild(badge);
+  });
+
+  // Contribution bars
+  used.forEach(([name,amt])=>{
+    const pct=amt/total*100;
+    const div=document.createElement('div');
+    div.className=`h-full flex items-center justify-center text-[10px] text-white font-semibold ${colors[name]}`;
+    div.style.width=pct+'%';
+    div.textContent=Math.round(pct)+'%';
+    wrap.appendChild(div);
   });
 }
 
-/* HISTORY */
 function renderHistory(rows){
   const el=document.getElementById('hist-list');el.innerHTML='';
   const map={};
+
   rows.forEach(e=>{
-    const k=getMonthKey(new Date(e.dateISO||e.date));
+    const k=monthKey(new Date(e.dateISO||e.date));
     map[k]=(map[k]||0)+e.amount;
   });
-  const now=getMonthKey(new Date()),
-        out=Object.entries(map).filter(([k])=>k!==now).sort((a,b)=>b[0].localeCompare(a[0]));
-  if(!out.length)return(el.innerHTML='<p class="text-xs text-slate-500">No previous months.</p>');
-  out.forEach(([k,a])=>{
-    const[year,month]=k.split('-').map(Number);
-    const d=new Date(year,month-1,1);
-    el.innerHTML+=`<div class="flex justify-between"><span>${d.toLocaleString('en-US',{month:'long',year:'numeric'})}</span><span class="font-semibold text-indigo-700">₹${a.toLocaleString('en-IN')}</span></div>`;
+
+  const now=monthKey(new Date()),
+        arr=Object.entries(map).filter(([k])=>k!==now).sort((a,b)=>b[0].localeCompare(a[0]));
+
+  if(!arr.length)return(el.innerHTML='<p class="text-xs text-slate-500">No previous months.</p>');
+
+  arr.forEach(([k,v])=>{
+    const[year,month]=k.split('-'),d=new Date(+year,month-1,1);
+    el.innerHTML+=`<div class="flex justify-between"><span>${d.toLocaleString('en-US',{month:'long',year:'numeric'})}</span><span class="font-semibold text-indigo-700">₹${v.toLocaleString('en-IN')}</span></div>`;
   });
 }
 
-/* COLLAPSIBLES */
 function setupCollapsibles(){
   [['cat','cat'],['tx','tx'],['hist','hist'],['filter','filter']]
-    .forEach(([id,a])=>{
-      document.getElementById(`${id}-header`).addEventListener('click',()=>{
-        document.getElementById(`${id}-body`).classList.toggle('hidden');
-        document.getElementById(`${a}-arrow`).classList.toggle('open');
+    .forEach(([a,b])=>{
+      document.getElementById(`${a}-header`).addEventListener('click',()=>{
+        document.getElementById(`${a}-body`).classList.toggle('hidden');
+        document.getElementById(`${b}-arrow`).classList.toggle('open');
       });
     });
 }
 
-/* FILTERS */
 function populateCategoryFilter(rows){
   const sel=document.getElementById('filter-category'),set=new Set();
   sel.querySelectorAll('option:not([value="all"])').forEach(o=>o.remove());
@@ -435,40 +415,43 @@ function populateCategoryFilter(rows){
 }
 
 function applyFilters(){
-  const f=document.getElementById('filter-from').value,
-        t=document.getElementById('filter-to').value,
+  const from=document.getElementById('filter-from').value,
+        to=document.getElementById('filter-to').value,
         cat=document.getElementById('filter-category').value,
-        p=document.getElementById('filter-person').value,
-        m=Number(document.getElementById('filter-min').value||0);
+        person=document.getElementById('filter-person').value,
+        min=Number(document.getElementById('filter-min').value||0);
+
   return ALL_EXPENSES.filter(e=>{
     const d=new Date(e.dateISO||e.date);
-    if(f&&d<new Date(f+'T00:00:00'))return false;
-    if(t&&d>new Date(t+'T23:59:59'))return false;
+    if(from&&d<new Date(from+'T00:00:00'))return false;
+    if(to&&d>new Date(to+'T23:59:59'))return false;
     if(cat!=='all'&&e.category!==cat)return false;
-    if(p!=='all'&&e.enteredBy!==p)return false;
-    if(e.amount<m)return false;
+    if(person!=='all'&&e.enteredBy!==person)return false;
+    if(e.amount<min)return false;
     return true;
   });
 }
 
-/* LOAD + INIT */
 async function loadExpenses(){
-  setMonthPill();
+  setMonthLabel();
   let txt,useSample=false;
   try{
     const r=await fetch(G_SHEET_URL,{cache:'no-store'});
-    if(!r.ok)throw 0;txt=await r.text();
+    if(!r.ok)throw 0;
+    txt=await r.text();
   }catch{
-    txt=SAMPLE_CSV;useSample=true;
+    txt=SAMPLE_CSV;
+    useSample=true;
   }
   if(useSample)document.getElementById('data-badge').classList.remove('hidden');
-  ALL_EXPENSES=parseCSV(txt).map(e=>({...e,dateISO:normalizeDateStr(e.date)}));
+  ALL_EXPENSES=parseCSV(txt).map(e=>({...e,dateISO:normalize(e.date)}));
 }
 
 async function init(){
   await loadExpenses();
   populateCategoryFilter(ALL_EXPENSES);
-  const rows=applyFilters(),mon=filterCurrentMonth(rows);
+
+  const rows=applyFilters(),mon=filterCurrent(rows);
   renderSummary(mon);
   renderBurn(mon);
   renderTrend(rows);
@@ -479,7 +462,7 @@ async function init(){
   setupCollapsibles();
 
   document.getElementById('filter-apply').addEventListener('click',()=>{
-    const rows=applyFilters(),mon=filterCurrentMonth(rows);
+    const rows=applyFilters(),mon=filterCurrent(rows);
     renderSummary(mon);
     renderBurn(mon);
     renderTrend(rows);
