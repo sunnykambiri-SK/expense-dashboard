@@ -15,7 +15,6 @@
     .collapsible-arrow { transition: transform 0.2s ease; }
     .collapsible-arrow.open { transform: rotate(90deg); }
 
-    /* Updated burn thickness */
     .burn-bar-bg { height: 20px; }
     .burn-bar-fg { height: 20px; }
   </style>
@@ -27,13 +26,12 @@
     <header class="flex items-center justify-between mb-2">
       <h1 class="text-lg font-extrabold tracking-wide text-slate-900">EXPENSE TRACKER</h1>
       <div class="flex items-center gap-2">
-        <div id="data-badge" class="hidden px-2 py-0.5 rounded bg-amber-500 text-white text-[10px] font-semibold uppercase">
-          Sample
-        </div>
+        <div id="data-badge" class="hidden px-2 py-0.5 rounded bg-amber-500 text-white text-[10px] font-semibold uppercase">Sample</div>
         <div id="month-pill" class="px-3 py-1 rounded-md bg-orange-500 text-white text-xs font-semibold uppercase">---</div>
       </div>
     </header>
 
+    <!-- SUMMARY -->
     <section id="summary-card" class="card rounded-xl bg-[#f5f0e6] px-4 py-3">
       <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
         <span>THIS MONTH</span>
@@ -51,6 +49,7 @@
       </div>
     </section>
 
+    <!-- BURN RATE -->
     <section id="burn-card" class="card rounded-xl bg-white px-4 py-3">
       <div class="flex justify-between text-[11px] text-slate-600 mb-1">
         <span>Time elapsed: <span id="burn-time">0%</span></span>
@@ -62,11 +61,13 @@
       </div>
     </section>
 
+    <!-- LAST 10 DAYS TREND -->
     <section id="trend-card" class="card rounded-xl bg-white px-4 py-3">
       <h2 class="text-sm font-semibold text-slate-800 mb-2">Last 10D trend</h2>
       <div id="trend-chart" class="relative flex items-end space-x-1 h-40"></div>
     </section>
 
+    <!-- CATEGORY -->
     <section class="card rounded-xl bg-white">
       <button id="cat-header" class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800">
         <span>Category</span>
@@ -77,6 +78,7 @@
       </div>
     </section>
 
+    <!-- TRANSACTION LIST -->
     <section id="tx-card" class="card rounded-xl bg-white">
       <button id="tx-header" class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800">
         <span>Recent Transactions</span>
@@ -88,10 +90,7 @@
           <table class="min-w-full text-[11px] text-left text-slate-700 border-separate border-spacing-y-1">
             <thead>
               <tr class="text-[10px] uppercase text-slate-400">
-                <th class="pr-2">Date</th>
-                <th class="pr-2">What</th>
-                <th class="pr-2">By</th>
-                <th class="pr-2 text-right">Amount</th>
+                <th>Date</th><th>What</th><th>By</th><th class="text-right">Amount</th>
               </tr>
             </thead>
             <tbody id="tx-table-body"></tbody>
@@ -100,7 +99,7 @@
       </div>
     </section>
 
-    <!-- 🔥 CONTRIBUTION WITH NEW LEGEND -->
+    <!-- CONTRIBUTION -->
     <section id="contri-card" class="card rounded-xl bg-white px-4 py-3">
       <h2 class="text-sm font-semibold text-slate-800 mb-2">Contribution</h2>
 
@@ -109,9 +108,13 @@
       <div class="w-full h-5 bg-slate-200 rounded-full overflow-hidden flex" id="contri-bar-wrapper"></div>
     </section>
 
+    <!-- HISTORY (UPDATED WITH AVERAGE BADGE) -->
     <section class="card rounded-xl bg-white">
       <button id="hist-header" class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800">
-        <span>History</span>
+        <span class="flex items-center gap-2">
+          History
+          <span id="history-avg" class="px-2 py-[2px] text-[10px] rounded-md text-white hidden"></span>
+        </span>
         <span id="hist-arrow" class="collapsible-arrow text-slate-500">▶</span>
       </button>
       <div id="hist-body" class="border-t border-slate-100 px-4 py-2 hidden">
@@ -119,6 +122,7 @@
       </div>
     </section>
 
+    <!-- FILTERS -->
     <section class="card rounded-xl bg-white">
       <button id="filter-header" class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800">
         <span>Filters</span>
@@ -126,39 +130,17 @@
       </button>
       <div id="filter-body" class="border-t border-slate-100 px-4 py-3 hidden">
         <div class="grid grid-cols-2 gap-2 text-[11px]">
-          <div>
-            <label class="block text-slate-500 mb-1">From</label>
-            <input id="filter-from" type="date" class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]" />
-          </div>
-          <div>
-            <label class="block text-slate-500 mb-1">To</label>
-            <input id="filter-to" type="date" class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]" />
-          </div>
-          <div>
-            <label class="block text-slate-500 mb-1">Category</label>
-            <select id="filter-category" class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]">
-              <option value="all">All</option>
-            </select>
-          </div>
+          <div><label class="block text-slate-500 mb-1">From</label><input id="filter-from" type="date" class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]"/></div>
+          <div><label class="block text-slate-500 mb-1">To</label><input id="filter-to" type="date" class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]"/></div>
+          <div><label class="block text-slate-500 mb-1">Category</label><select id="filter-category" class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]"><option value="all">All</option></select></div>
           <div>
             <label class="block text-slate-500 mb-1">Person</label>
             <select id="filter-person" class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]">
-              <option value="all">All</option>
-              <option value="Sunny">Sunny</option>
-              <option value="Deepal">Deepal</option>
-              <option value="Nishka">Nishka</option>
-              <option value="Others">Others</option>
+              <option value="all">All</option><option>Sunny</option><option>Deepal</option><option>Nishka</option><option>Others</option>
             </select>
           </div>
-          <div>
-            <label class="block text-slate-500 mb-1">Min Amount</label>
-            <input id="filter-min" type="number" class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]" placeholder="0" />
-          </div>
-          <div class="flex items-end">
-            <button id="filter-apply" class="w-full rounded bg-indigo-600 text-white text-[11px] py-1 font-semibold">
-              Apply
-            </button>
-          </div>
+          <div><label class="block text-slate-500 mb-1">Min Amount</label><input id="filter-min" type="number" class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]" placeholder="0"/></div>
+          <div class="flex items-end"><button id="filter-apply" class="w-full rounded bg-indigo-600 text-white text-[11px] py-1 font-semibold">Apply</button></div>
         </div>
       </div>
     </section>
@@ -166,10 +148,7 @@
     <a href="https://docs.google.com/forms/d/1hnsgJRRX_1vcoo9bmIXVzTih__gkM_ltXX5DvxLtkGc/viewform"
        target="_blank"
        class="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-indigo-600 text-white shadow-xl">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path d="M12 4v16" stroke="white" stroke-width="2" stroke-linecap="round"/>
-        <path d="M20 12H4" stroke="white" stroke-width="2" stroke-linecap="round"/>
-      </svg>
+      +
     </a>
   </main>
 
@@ -178,14 +157,14 @@ const G_SHEET_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSg2yv6cZgH_d
 const MONTHLY_BUDGET=50000;
 const DAILY_LIMIT=2000;
 
-const SAMPLE_CSV=`Timestamp,What was the money spent on,Amount,Entered By,Date,Main Expense Category
+const SAMPLE_CSV=`Timestamp,Spent on,Amount,Entered By,Date,Main Expense Category
 12/2/2025 23:19:46,Food,300,Sunny,12/2/2025,Food
 12/3/2025 09:10:00,Taxi,250,Deepal,12/3/2025,Taxi / Commute`;
 
 let ALL_EXPENSES=[];
 
 function parseCSV(txt){
-  const rows=txt.split(/\r?\n/).filter(r=>r.trim()),out=[];
+  const out=[],rows=txt.split(/\r?\n/).filter(r=>r.trim());
   for(let i=1;i<rows.length;i++){
     const c=rows[i].split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/).map(v=>v.replace(/"/g,'').trim());
     if(!c[0])continue;
@@ -195,7 +174,7 @@ function parseCSV(txt){
       amount:Number((c[2]||'0').replace(/,/g,''))||0,
       enteredBy:c[3],
       date:c[4]||c[0].split(' ')[0],
-      category:c[5]||'OTHERS'
+      category:c[5]||"Others"
     });
   }
   return out;
@@ -203,19 +182,19 @@ function parseCSV(txt){
 
 function normalize(d){
   const p=d.split('/');
-  return p.length===3?`${p[2]}-${p[0].padStart(2,'0')}-${p[1].padStart(2,'0')}`:d;
+  if(p.length===3)return`${p[2]}-${p[0].padStart(2,'0')}-${p[1].padStart(2,'0')}`;
+  return d;
 }
 
 function monthKey(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
 
-function filterCurrent(rows){
-  const now=new Date(),m=monthKey(now);
-  return rows.filter(e=>monthKey(new Date(e.dateISO||e.date))===m);
+function filterCurrent(list){
+  const now=new Date(),k=monthKey(now);
+  return list.filter(e=>monthKey(new Date(e.dateISO||e.date))===k);
 }
 
-function setMonthLabel(){
-  document.getElementById('month-pill').textContent=
-    new Date().toLocaleString('en-US',{month:'short'}).toLowerCase();
+function setMonthPill(){
+  document.getElementById('month-pill').textContent=new Date().toLocaleString('en-US',{month:'short'}).toLowerCase();
 }
 
 function renderSummary(list){
@@ -226,27 +205,29 @@ function renderSummary(list){
 
 function renderBurn(list){
   const total=list.reduce((a,b)=>a+b.amount,0),
-        now=new Date(),days=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),
+        now=new Date(),
+        days=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),
         d=now.getDate(),
-        time=Math.round(d/days*100),spent=Math.round(total/MONTHLY_BUDGET*100);
+        timePct=Math.round(d/days*100),
+        spentPct=Math.round(total/MONTHLY_BUDGET*100);
 
-  document.getElementById('burn-time').textContent=time+'%';
-  document.getElementById('burn-spent').textContent=spent+'%';
+  document.getElementById('burn-time').textContent=timePct+"%";
+  document.getElementById('burn-spent').textContent=spentPct+"%";
 
-  document.getElementById('burn-time-bar').style.width=time+'%';
+  document.getElementById('burn-time-bar').style.width=timePct+'%';
 
   const bar=document.getElementById('burn-spent-bar');
-  bar.style.width=Math.min(spent,100)+'%';
+  bar.style.width=Math.min(spentPct,100)+'%';
   bar.classList.remove('bg-emerald-500','bg-red-500');
-  bar.classList.add(spent>time?'bg-red-500':'bg-emerald-500');
+  bar.classList.add(spentPct>timePct?'bg-red-500':'bg-emerald-500');
 }
 
-function renderTrend(rows){
-  const wrap=document.getElementById('trend-chart');wrap.innerHTML='';
+function renderTrend(list){
+  const w=document.getElementById('trend-chart');w.innerHTML='';
   const today=new Date();today.setHours(0,0,0,0);
 
   const totals={};
-  rows.forEach(e=>{
+  list.forEach(e=>{
     const d=new Date(e.dateISO||e.date);d.setHours(0,0,0,0);
     totals[d.toISOString().slice(0,10)]=(totals[d.toISOString().slice(0,10)]||0)+e.amount;
   });
@@ -254,37 +235,40 @@ function renderTrend(rows){
   const arr=[];
   for(let i=9;i>=0;i--){
     const d=new Date(today);d.setDate(d.getDate()-i);
-    const key=d.toISOString().slice(0,10);
-    arr.push({label:`${String(d.getDate()).padStart(2,'0')}/${d.getMonth()+1}`,total:totals[key]||0});
+    arr.push({
+      label:`${String(d.getDate()).padStart(2,'0')}/${d.getMonth()+1}`,
+      total:totals[d.toISOString().slice(0,10)]||0
+    });
   }
 
   const max=Math.max(...arr.map(x=>x.total),1);
 
   arr.forEach(item=>{
-    const col=document.createElement('div');
-    col.className='flex flex-col items-center flex-1 h-full';
+    const wrap=document.createElement('div');
+    wrap.className='flex flex-col items-center flex-1 h-full';
 
     const value=document.createElement('div');
     value.className='text-[10px] text-slate-600';
     value.style.transform='rotate(-90deg)';
     value.textContent=item.total||'';
-    col.appendChild(value);
+    wrap.appendChild(value);
 
-    const barWrap=document.createElement('div');
-    barWrap.className='flex-1 flex items-end w-full justify-center';
+    const b=document.createElement('div');
+    b.className='flex-1 flex items-end w-full justify-center';
 
-    const bar=document.createElement('div');
-    bar.className=`w-[60%] rounded-t ${item.total>DAILY_LIMIT?'bg-red-500':'bg-indigo-500'}`;
-    bar.style.height=(item.total/max*80)+'%';
-    barWrap.appendChild(bar);
-    col.appendChild(barWrap);
+    const col=document.createElement('div');
+    col.className=`w-[60%] rounded-t ${item.total>DAILY_LIMIT?'bg-red-500':'bg-indigo-500'}`;
+    col.style.height=(item.total/max*80)+'%';
+    b.appendChild(col);
 
-    const label=document.createElement('span');
-    label.className='text-[10px] text-slate-500 mt-1';
-    label.textContent=item.label;
-    col.appendChild(label);
+    wrap.appendChild(b);
 
-    wrap.appendChild(col);
+    const date=document.createElement('span');
+    date.className='text-[10px] text-slate-500 mt-1';
+    date.textContent=item.label;
+    wrap.appendChild(date);
+
+    w.appendChild(wrap);
   });
 }
 
@@ -298,7 +282,9 @@ function renderCategories(list){
   const max=Math.max(...Object.values(totals),1);
 
   Object.entries(totals).sort((a,b)=>b[1]-a[1]).forEach(([name,val])=>{
-    const pct=val/max*90,share=Math.round(val/sum*100);
+    const pct=val/max*90;
+    const share=Math.round(val/sum*100);
+
     el.innerHTML+=`
 <div class="text-[11px]">
   <div class="flex justify-between mb-0.5">
@@ -330,11 +316,10 @@ function renderTransactions(list){
     });
 }
 
-/* 🔥 UPDATED CONTRIBUTION WITH LEGEND */
+/* CONTRIBUTION (unchanged logic) */
 function renderContribution(list){
   const wrap=document.getElementById('contri-bar-wrapper'),
         legend=document.getElementById('contri-legend');
-  
   wrap.innerHTML='';
   legend.innerHTML='';
 
@@ -350,49 +335,68 @@ function renderContribution(list){
   }
 
   const colors={
-    Sunny:'bg-red-500',
-    Deepal:'bg-emerald-500',
-    Nishka:'bg-purple-500',
-    Others:'bg-gray-500'
+    Sunny:'bg-red-500',Deepal:'bg-emerald-500',
+    Nishka:'bg-purple-500',Others:'bg-gray-500'
   };
 
-  // Create legend badges (Size S, Style B)
   used.forEach(([name])=>{
     const badge=document.createElement('div');
-    badge.className=`px-2 py-[2px] ${colors[name]} text-white text-[10px] rounded-md`;
+    badge.className=`px-2 py-[2px] text-[10px] text-white rounded-md ${colors[name]}`;
     badge.textContent=name;
     legend.appendChild(badge);
   });
 
-  // Contribution bars
   used.forEach(([name,amt])=>{
-    const pct=amt/total*100;
     const div=document.createElement('div');
     div.className=`h-full flex items-center justify-center text-[10px] text-white font-semibold ${colors[name]}`;
-    div.style.width=pct+'%';
-    div.textContent=Math.round(pct)+'%';
+    div.style.width=(amt/total*100)+'%';
+    div.textContent=Math.round(amt/total*100)+'%';
     wrap.appendChild(div);
   });
 }
 
-function renderHistory(rows){
-  const el=document.getElementById('hist-list');el.innerHTML='';
-  const map={};
+/* 🔥 HISTORY WITH AVERAGE CALCULATION */
+function renderHistory(list){
+  const el=document.getElementById('hist-list'),
+        badge=document.getElementById('history-avg');
+  
+  el.innerHTML='';
+  badge.classList.add('hidden');
 
-  rows.forEach(e=>{
+  const buckets={};
+  list.forEach(e=>{
     const k=monthKey(new Date(e.dateISO||e.date));
-    map[k]=(map[k]||0)+e.amount;
+    buckets[k]=(buckets[k]||0)+e.amount;
   });
 
-  const now=monthKey(new Date()),
-        arr=Object.entries(map).filter(([k])=>k!==now).sort((a,b)=>b[0].localeCompare(a[0]));
+  const nowKey=monthKey(new Date());
+  const pastMonths=Object.entries(buckets).filter(([k])=>k!==nowKey);
 
-  if(!arr.length)return(el.innerHTML='<p class="text-xs text-slate-500">No previous months.</p>');
+  if(!pastMonths.length){
+    el.innerHTML='<p class="text-xs text-slate-500">No previous months.</p>';
+    return;
+  }
 
-  arr.forEach(([k,v])=>{
-    const[year,month]=k.split('-'),d=new Date(+year,month-1,1);
-    el.innerHTML+=`<div class="flex justify-between"><span>${d.toLocaleString('en-US',{month:'long',year:'numeric'})}</span><span class="font-semibold text-indigo-700">₹${v.toLocaleString('en-IN')}</span></div>`;
+  pastMonths.sort((a,b)=>b[0].localeCompare(a[0]));
+
+  let sum=0;
+  pastMonths.forEach(([k,val])=>{
+    const [y,m]=k.split('-');
+    const d=new Date(y,m-1,1);
+    el.innerHTML+=`<div class="flex justify-between">
+      <span>${d.toLocaleString('en-US',{month:'long',year:'numeric'})}</span>
+      <span class="font-semibold text-indigo-700">₹${val.toLocaleString('en-IN')}</span>
+    </div>`;
+    sum+=val;
   });
+
+  const avg=Math.round(sum/pastMonths.length);
+
+  badge.textContent=`Avg: ₹${avg.toLocaleString('en-IN')}`;
+  badge.classList.remove('hidden');
+
+  badge.classList.remove('bg-red-500','bg-emerald-500');
+  badge.classList.add(avg>50000?'bg-red-500':'bg-emerald-500');
 }
 
 function setupCollapsibles(){
@@ -406,11 +410,15 @@ function setupCollapsibles(){
 }
 
 function populateCategoryFilter(rows){
-  const sel=document.getElementById('filter-category'),set=new Set();
+  const sel=document.getElementById('filter-category'),
+        set=new Set();
+  
   sel.querySelectorAll('option:not([value="all"])').forEach(o=>o.remove());
   rows.forEach(e=>set.add(e.category));
   [...set].sort().forEach(c=>{
-    const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);
+    const o=document.createElement('option');
+    o.value=c;o.textContent=c;
+    sel.appendChild(o);
   });
 }
 
@@ -433,17 +441,19 @@ function applyFilters(){
 }
 
 async function loadExpenses(){
-  setMonthLabel();
+  setMonthPill();
   let txt,useSample=false;
+
   try{
     const r=await fetch(G_SHEET_URL,{cache:'no-store'});
     if(!r.ok)throw 0;
     txt=await r.text();
   }catch{
-    txt=SAMPLE_CSV;
-    useSample=true;
+    txt=SAMPLE_CSV;useSample=true;
   }
+
   if(useSample)document.getElementById('data-badge').classList.remove('hidden');
+
   ALL_EXPENSES=parseCSV(txt).map(e=>({...e,dateISO:normalize(e.date)}));
 }
 
@@ -451,18 +461,22 @@ async function init(){
   await loadExpenses();
   populateCategoryFilter(ALL_EXPENSES);
 
-  const rows=applyFilters(),mon=filterCurrent(rows);
-  renderSummary(mon);
-  renderBurn(mon);
+  const rows=applyFilters(),
+        monthRows=filterCurrent(rows);
+
+  renderSummary(monthRows);
+  renderBurn(monthRows);
   renderTrend(rows);
-  renderCategories(mon);
-  renderTransactions(mon);
-  renderContribution(mon);
+  renderCategories(monthRows);
+  renderTransactions(monthRows);
+  renderContribution(monthRows);
   renderHistory(rows);
   setupCollapsibles();
 
   document.getElementById('filter-apply').addEventListener('click',()=>{
-    const rows=applyFilters(),mon=filterCurrent(rows);
+    const rows=applyFilters(),
+          mon=filterCurrent(rows);
+
     renderSummary(mon);
     renderBurn(mon);
     renderTrend(rows);
