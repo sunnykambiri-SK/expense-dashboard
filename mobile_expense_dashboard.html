@@ -4,26 +4,59 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EXPENSE TRACKER</title>
+
   <!-- App Icon for Home-Screen Shortcut (INR symbol) -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%230059b3'/%3E%3Ctext x='50' y='63' font-size='55' text-anchor='middle' fill='white' font-family='Arial'%3E%E2%82%B9%3C/text%3E%3C/svg%3E" />
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%230059b3'/%3E%3Ctext x='50' y='63' font-size='55' text-anchor='middle' fill='white' font-family='Arial'%3E%E2%82%B9%3C/text%3E%3C/svg%3E"
+  />
+
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
-    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-    .card { box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06); }
-    .collapsible-arrow { transition: transform 0.2s ease; }
-    .collapsible-arrow.open { transform: rotate(90deg); }
-    .burn-bar-bg { height: 6px; }
-    .burn-bar-fg { height: 6px; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .card {
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
+    }
+    .collapsible-arrow {
+      transition: transform 0.2s ease;
+    }
+    .collapsible-arrow.open {
+      transform: rotate(90deg);
+    }
+    .burn-bar-bg {
+      height: 6px;
+    }
+    .burn-bar-fg {
+      height: 6px;
+    }
   </style>
 </head>
+
 <body class="bg-indigo-100 min-h-screen">
   <main class="max-w-xl mx-auto px-4 py-4 space-y-4">
     <!-- HEADER -->
     <header class="flex items-center justify-between mb-2">
-      <h1 class="text-lg font-extrabold tracking-wide text-slate-900">EXPENSE TRACKER</h1>
+      <h1 class="text-lg font-extrabold tracking-wide text-slate-900">
+        EXPENSE TRACKER
+      </h1>
+
       <div class="flex items-center gap-2">
-        <div id="data-badge" class="hidden px-2 py-0.5 rounded bg-amber-500 text-white text-[10px] font-semibold uppercase">Sample</div>
-        <div id="month-pill" class="px-3 py-1 rounded-md bg-orange-500 text-white text-xs font-semibold uppercase">---</div>
+        <div
+          id="data-badge"
+          class="hidden px-2 py-0.5 rounded bg-amber-500 text-white text-[10px] font-semibold uppercase"
+        >
+          Sample
+        </div>
+        <div
+          id="month-pill"
+          class="px-3 py-1 rounded-md bg-orange-500 text-white text-xs font-semibold uppercase"
+        >
+          ---
+        </div>
       </div>
     </header>
 
@@ -34,12 +67,26 @@
       </div>
       <div class="flex gap-4">
         <div class="flex-1">
-          <div class="text-xs font-semibold text-indigo-700 mb-0.5">Total Spent</div>
-          <div id="summary-total" class="text-xl font-extrabold text-indigo-700">₹0</div>
+          <div class="text-xs font-semibold text-indigo-700 mb-0.5">
+            Total Spent
+          </div>
+          <div
+            id="summary-total"
+            class="text-xl font-extrabold text-indigo-700"
+          >
+            ₹0
+          </div>
         </div>
         <div class="flex-1 text-right">
-          <div class="text-xs font-semibold text-slate-800 mb-0.5">Balance</div>
-          <div id="summary-balance" class="text-xl font-extrabold text-black">₹0</div>
+          <div class="text-xs font-semibold text-slate-800 mb-0.5">
+            Balance
+          </div>
+          <div
+            id="summary-balance"
+            class="text-xl font-extrabold text-black"
+          >
+            ₹0
+          </div>
         </div>
       </div>
     </section>
@@ -50,38 +97,77 @@
         <span>Time elapsed: <span id="burn-time">0%</span></span>
         <span>Burn: <span id="burn-spent">0%</span></span>
       </div>
-      <div class="relative w-full bg-slate-200 rounded-full burn-bar-bg overflow-hidden">
-        <div id="burn-time-bar" class="absolute left-0 top-0 bg-blue-400/70 burn-bar-fg rounded-full" style="width:0%"></div>
-        <div id="burn-spent-bar" class="absolute left-0 top-0 burn-bar-fg rounded-full bg-emerald-500" style="width:0%"></div>
+      <div
+        class="relative w-full bg-slate-200 rounded-full burn-bar-bg overflow-hidden"
+      >
+        <div
+          id="burn-time-bar"
+          class="absolute left-0 top-0 bg-blue-400/70 burn-bar-fg rounded-full"
+          style="width: 0%"
+        ></div>
+        <div
+          id="burn-spent-bar"
+          class="absolute left-0 top-0 burn-bar-fg rounded-full bg-emerald-500"
+          style="width: 0%"
+        ></div>
       </div>
     </section>
 
     <!-- LAST 10D TREND -->
     <section id="trend-card" class="card rounded-xl bg-white px-4 py-3">
-      <h2 class="text-sm font-semibold text-slate-800 mb-2">Last 10D trend</h2>
-      <div id="trend-chart" class="relative flex items-end space-x-1 h-40"></div>
+      <h2 class="text-sm font-semibold text-slate-800 mb-2">
+        Last 10D trend
+      </h2>
+      <div
+        id="trend-chart"
+        class="relative flex items-end space-x-1 h-40"
+      ></div>
     </section>
 
     <!-- CATEGORY (COLLAPSIBLE) -->
     <section class="card rounded-xl bg-white">
-      <button id="cat-header" class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800">
+      <button
+        id="cat-header"
+        class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800"
+      >
         <span>Category</span>
-        <span id="cat-arrow" class="collapsible-arrow text-slate-500">▶</span>
+        <span
+          id="cat-arrow"
+          class="collapsible-arrow text-slate-500"
+        >
+          ▶
+        </span>
       </button>
-      <div id="cat-body" class="border-t border-slate-100 px-4 py-2 hidden">
+      <div
+        id="cat-body"
+        class="border-t border-slate-100 px-4 py-2 hidden"
+      >
         <div id="cat-list" class="space-y-2"></div>
       </div>
     </section>
 
     <!-- RECENT TRANSACTIONS (COLLAPSIBLE) -->
     <section id="tx-card" class="card rounded-xl bg-white">
-      <button id="tx-header" class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800">
+      <button
+        id="tx-header"
+        class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800"
+      >
         <span>Recent Transactions</span>
-        <span id="tx-arrow" class="collapsible-arrow text-slate-500">▶</span>
+        <span
+          id="tx-arrow"
+          class="collapsible-arrow text-slate-500"
+        >
+          ▶
+        </span>
       </button>
-      <div id="tx-body" class="border-t border-slate-100 px-4 py-2 hidden">
+      <div
+        id="tx-body"
+        class="border-t border-slate-100 px-4 py-2 hidden"
+      >
         <div class="overflow-x-auto">
-          <table class="min-w-full text-[11px] text-left text-slate-700 border-separate border-spacing-y-1">
+          <table
+            class="min-w-full text-[11px] text-left text-slate-700 border-separate border-spacing-y-1"
+          >
             <thead>
               <tr class="text-[10px] uppercase text-slate-400">
                 <th class="pr-2">Date</th>
@@ -97,51 +183,95 @@
     </section>
 
     <!-- CONTRIBUTION (STACKED BAR) -->
-    <section id="contri-card" class="card rounded-xl bg-white px-4 py-3">
-      <h2 class="text-sm font-semibold text-slate-800 mb-2">Contribution</h2>
+    <section
+      id="contri-card"
+      class="card rounded-xl bg-white px-4 py-3"
+    >
+      <h2 class="text-sm font-semibold text-slate-800 mb-2">
+        Contribution
+      </h2>
       <div class="flex justify-between text-[11px] text-slate-400 mb-1">
         <span>Sunny</span>
         <span>Deepal</span>
       </div>
-      <div class="w-full h-5 bg-slate-200 rounded-full overflow-hidden flex" id="contri-bar-wrapper"></div>
+      <div
+        id="contri-bar-wrapper"
+        class="w-full h-5 bg-slate-200 rounded-full overflow-hidden flex"
+      ></div>
     </section>
 
     <!-- HISTORY (COLLAPSIBLE) -->
     <section class="card rounded-xl bg-white">
-      <button id="hist-header" class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800">
+      <button
+        id="hist-header"
+        class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800"
+      >
         <span>History</span>
-        <span id="hist-arrow" class="collapsible-arrow text-slate-500">▶</span>
+        <span
+          id="hist-arrow"
+          class="collapsible-arrow text-slate-500"
+        >
+          ▶
+        </span>
       </button>
-      <div id="hist-body" class="border-t border-slate-100 px-4 py-2 hidden">
+      <div
+        id="hist-body"
+        class="border-t border-slate-100 px-4 py-2 hidden"
+      >
         <div id="hist-list" class="space-y-1 text-[12px]"></div>
       </div>
     </section>
 
     <!-- FILTERS (COLLAPSIBLE) -->
     <section class="card rounded-xl bg-white">
-      <button id="filter-header" class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800">
+      <button
+        id="filter-header"
+        class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-800"
+      >
         <span>Filters</span>
-        <span id="filter-arrow" class="collapsible-arrow text-slate-500">▶</span>
+        <span
+          id="filter-arrow"
+          class="collapsible-arrow text-slate-500"
+        >
+          ▶
+        </span>
       </button>
-      <div id="filter-body" class="border-t border-slate-100 px-4 py-3 hidden">
+      <div
+        id="filter-body"
+        class="border-t border-slate-100 px-4 py-3 hidden"
+      >
         <div class="grid grid-cols-2 gap-2 text-[11px]">
           <div>
             <label class="block text-slate-500 mb-1">From</label>
-            <input id="filter-from" type="date" class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]" />
+            <input
+              id="filter-from"
+              type="date"
+              class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]"
+            />
           </div>
           <div>
             <label class="block text-slate-500 mb-1">To</label>
-            <input id="filter-to" type="date" class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]" />
+            <input
+              id="filter-to"
+              type="date"
+              class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]"
+            />
           </div>
           <div>
             <label class="block text-slate-500 mb-1">Category</label>
-            <select id="filter-category" class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]">
+            <select
+              id="filter-category"
+              class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]"
+            >
               <option value="all">All</option>
             </select>
           </div>
           <div>
             <label class="block text-slate-500 mb-1">Person</label>
-            <select id="filter-person" class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]">
+            <select
+              id="filter-person"
+              class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]"
+            >
               <option value="all">All</option>
               <option value="Sunny">Sunny</option>
               <option value="Deepal">Deepal</option>
@@ -149,28 +279,62 @@
           </div>
           <div>
             <label class="block text-slate-500 mb-1">Min Amount</label>
-            <input id="filter-min" type="number" class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]" placeholder="0" />
+            <input
+              id="filter-min"
+              type="number"
+              class="w-full rounded border border-slate-300 px-2 py-1 text-[11px]"
+              placeholder="0"
+            />
           </div>
           <div class="flex items-end">
-            <button id="filter-apply" class="w-full rounded bg-indigo-600 text-white text-[11px] py-1 font-semibold">Apply</button>
+            <button
+              id="filter-apply"
+              class="w-full rounded bg-indigo-600 text-white text-[11px] py-1 font-semibold"
+            >
+              Apply
+            </button>
           </div>
         </div>
       </div>
     </section>
 
     <!-- FLOATING ADD EXPENSE BUTTON -->
-    <a href="https://docs.google.com/forms/d/1hnsgJRRX_1vcoo9bmIXVzTih__gkM_ltXX5DvxLtkGc/viewform" target="_blank"
-       class="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-indigo-600 text-white shadow-xl">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 4v16" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M20 12H4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <a
+      href="https://docs.google.com/forms/d/1hnsgJRRX_1vcoo9bmIXVzTih__gkM_ltXX5DvxLtkGc/viewform"
+      target="_blank"
+      class="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-indigo-600 text-white shadow-xl"
+    >
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M12 4v16"
+          stroke="white"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M20 12H4"
+          stroke="white"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
       </svg>
     </a>
   </main>
 
   <script>
-    // === CONFIG ===
-    const G_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSg2yv6cZgH_d8f7gFlb3P44ZO3_DubKK0kzmnlDYdOkB2hWwv3TVUWUPnywnhG-_ECKvqUE21-aCRC/pub?output=csv";
+    // === CONFIG ===================================
+
+    const G_SHEET_URL =
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vSg2yv6cZgH_d8f7gFlb3P44ZO3_DubKK0kzmnlDYdOkB2hWwv3TVUWUPnywnhG-_ECKvqUE21-aCRC/pub?output=csv";
+
     const MONTHLY_BUDGET = 50000;
     const DAILY_LIMIT = 2000;
 
@@ -184,360 +348,507 @@
 
     let ALL_EXPENSES = [];
 
+    // === DATA HELPERS =============================
+
     function parseCSV(text) {
-      const rows = text.split(/\r?\n/).filter(r => r.trim().length);
+      const rows = text.split(/\r?\n/).filter((r) => r.trim().length);
       const out = [];
+
       for (let i = 1; i < rows.length; i++) {
-        const cols = rows[i].split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/).map(c => c.replace(/"/g, '').trim());
+        const cols = rows[i]
+          .split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/)
+          .map((c) => c.replace(/"/g, "").trim());
+
         if (!cols.length || !cols[0]) continue;
-        const timestamp = cols[0] || '';
-        const details = cols[1] || '';
-        const amount = Number((cols[2] || '0').replace(/,/g, '')) || 0;
-        const enteredBy = cols[3] || '';
-        const dateRaw = cols[4] || timestamp.split(' ')[0] || '';
-        const category = cols[5] || 'OTHERS';
-        out.push({ timestamp, details, amount, enteredBy, date: dateRaw, category });
+
+        const timestamp = cols[0] || "";
+        const details = cols[1] || "";
+        const amount = Number((cols[2] || "0").replace(/,/g, "")) || 0;
+        const enteredBy = cols[3] || "";
+        const dateRaw = cols[4] || timestamp.split(" ")[0] || "";
+        const category = cols[5] || "OTHERS";
+
+        out.push({
+          timestamp,
+          details,
+          amount,
+          enteredBy,
+          date: dateRaw,
+          category,
+        });
       }
+
       return out;
     }
 
     function normalizeDateStr(mmddyyyy) {
-      const parts = String(mmddyyyy).split('/');
+      const parts = String(mmddyyyy).split("/");
       if (parts.length === 3) {
         const [m, d, y] = parts;
-        return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(
+          2,
+          "0"
+        )}`;
       }
       return mmddyyyy;
     }
 
     function getCurrentMonthKey(date) {
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+        2,
+        "0"
+      )}`;
     }
 
     function filterCurrentMonth(expenses) {
       const today = new Date();
       const monthKey = getCurrentMonthKey(today);
-      return expenses.filter(e => {
+
+      return expenses.filter((e) => {
         const d = new Date(e.dateISO || e.date);
         return getCurrentMonthKey(d) === monthKey;
       });
     }
 
+    // === UI HELPERS ===============================
+
     function setMonthPill() {
       const now = new Date();
-      const short = now.toLocaleString('en-US', { month: 'short' }).toLowerCase();
-      document.getElementById('month-pill').textContent = short;
+      const short = now
+        .toLocaleString("en-US", { month: "short" })
+        .toLowerCase();
+      document.getElementById("month-pill").textContent = short;
     }
 
     function renderSummary(monthExpenses) {
       const total = monthExpenses.reduce((s, e) => s + e.amount, 0);
       const balance = MONTHLY_BUDGET - total;
-      document.getElementById('summary-total').textContent = '₹' + total.toLocaleString('en-IN');
-      document.getElementById('summary-balance').textContent = '₹' + balance.toLocaleString('en-IN');
+
+      document.getElementById("summary-total").textContent =
+        "₹" + total.toLocaleString("en-IN");
+      document.getElementById("summary-balance").textContent =
+        "₹" + balance.toLocaleString("en-IN");
     }
 
     function renderBurn(monthExpenses) {
       const total = monthExpenses.reduce((s, e) => s + e.amount, 0);
+
       const now = new Date();
       const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       const totalDays = end.getDate();
       const daysPassed = now.getDate();
+
       const timeRatio = daysPassed / totalDays;
       const spentRatio = total / MONTHLY_BUDGET;
+
       const timePct = Math.round(timeRatio * 100);
       const spentPct = Math.round(spentRatio * 100);
-      document.getElementById('burn-time').textContent = timePct + '%';
-      document.getElementById('burn-spent').textContent = spentPct + '%';
-      document.getElementById('burn-time-bar').style.width = timePct + '%';
-      const spentBar = document.getElementById('burn-spent-bar');
-      spentBar.style.width = Math.min(spentPct, 100) + '%';
-      spentBar.classList.remove('bg-emerald-500', 'bg-red-500');
+
+      document.getElementById("burn-time").textContent = timePct + "%";
+      document.getElementById("burn-spent").textContent = spentPct + "%";
+
+      document.getElementById("burn-time-bar").style.width = timePct + "%";
+
+      const spentBar = document.getElementById("burn-spent-bar");
+      spentBar.style.width = Math.min(spentPct, 100) + "%";
+      spentBar.classList.remove("bg-emerald-500", "bg-red-500");
+
       if (spentRatio > timeRatio) {
-        spentBar.classList.add('bg-red-500');
+        spentBar.classList.add("bg-red-500");
       } else {
-        spentBar.classList.add('bg-emerald-500');
+        spentBar.classList.add("bg-emerald-500");
       }
     }
 
-    // === LAST 10D TREND (simple column chart, labels outside, vertical) ===
+    // === LAST 10D TREND ===========================
+
     function renderTrend(expenses) {
-      const container = document.getElementById('trend-chart');
-      container.innerHTML = '';
+      const container = document.getElementById("trend-chart");
+      container.innerHTML = "";
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
       // Sum totals per calendar day
       const totalsByDay = {};
-      expenses.forEach(e => {
+      expenses.forEach((e) => {
         const d = new Date(e.dateISO || e.date);
         d.setHours(0, 0, 0, 0);
         const key = d.toISOString().slice(0, 10);
         totalsByDay[key] = (totalsByDay[key] || 0) + e.amount;
       });
 
-      // Build 10 days (oldest on the left, newest on the right)
+      // Build 10 days (oldest on the left)
       const dayInfos = [];
       for (let i = 9; i >= 0; i--) {
         const d = new Date(today);
         d.setDate(d.getDate() - i);
         const key = d.toISOString().slice(0, 10);
         const total = totalsByDay[key] || 0;
-        const label = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0');
+        const label =
+          String(d.getDate()).padStart(2, "0") +
+          "/" +
+          String(d.getMonth() + 1).padStart(2, "0");
         dayInfos.push({ key, total, label });
       }
 
-      const maxVal = Math.max(...dayInfos.map(d => d.total), 1);
+      const maxVal = Math.max(...dayInfos.map((d) => d.total), 1);
 
-      dayInfos.forEach(info => {
+      dayInfos.forEach((info) => {
         const val = info.total;
-        const pct = maxVal === 0 ? 0 : (val / maxVal) * 80; // up to 80% height
+        const pct = maxVal === 0 ? 0 : (val / maxVal) * 80; // up to 80% of height
         const over = val > DAILY_LIMIT;
-        const colorClass = over ? 'bg-red-500' : 'bg-indigo-500';
+        const colorClass = over ? "bg-red-500" : "bg-indigo-500";
 
-        const wrap = document.createElement('div');
-        wrap.className = 'flex flex-col items-center flex-1 h-full';
+        const wrap = document.createElement("div");
+        wrap.className = "flex flex-col items-center flex-1 h-full";
 
         // Value label above column, vertical (rotate 270°)
-        const valueLabel = document.createElement('div');
-        valueLabel.className = 'text-[10px] text-slate-600';
-        valueLabel.style.transform = 'rotate(-90deg)';
-        valueLabel.style.whiteSpace = 'nowrap';
-        valueLabel.textContent = val ? val.toLocaleString('en-IN') : '';
+        const valueLabel = document.createElement("div");
+        valueLabel.className = "text-[10px] text-slate-600";
+        valueLabel.style.transform = "rotate(-90deg)";
+        valueLabel.style.whiteSpace = "nowrap";
+        valueLabel.textContent = val ? val.toLocaleString("en-IN") : "";
         wrap.appendChild(valueLabel);
 
         // Column
-        const columnArea = document.createElement('div');
-        columnArea.className = 'flex-1 flex items-end w-full justify-center';
+        const columnArea = document.createElement("div");
+        columnArea.className =
+          "flex-1 flex items-end w-full justify-center";
 
-        const colOuter = document.createElement('div');
-        colOuter.className = 'w-[60%] h-full flex items-end justify-center';
+        const colOuter = document.createElement("div");
+        colOuter.className =
+          "w-[60%] h-full flex items-end justify-center";
 
-        const col = document.createElement('div');
-        col.className = 'w-full rounded-t ' + colorClass;
-        col.style.height = pct + '%';
+        const col = document.createElement("div");
+        col.className = "w-full rounded-t " + colorClass;
+        col.style.height = pct + "%";
 
         colOuter.appendChild(col);
         columnArea.appendChild(colOuter);
         wrap.appendChild(columnArea);
 
         // Date label
-        const dateLabel = document.createElement('div');
-        dateLabel.className = 'h-5 flex items-center justify-center';
-        const dateSpan = document.createElement('span');
-        dateSpan.className = 'text-[10px] text-slate-500';
+        const dateLabel = document.createElement("div");
+        dateLabel.className =
+          "h-5 flex items-center justify-center";
+        const dateSpan = document.createElement("span");
+        dateSpan.className = "text-[10px] text-slate-500";
         dateSpan.textContent = info.label;
-        dateLabel.appendChild(dateSpan);
 
+        dateLabel.appendChild(dateSpan);
         wrap.appendChild(dateLabel);
+
         container.appendChild(wrap);
       });
     }
 
+    // === CATEGORY =================================
+
     function renderCategories(monthExpenses) {
-      const body = document.getElementById('cat-list');
-      body.innerHTML = '';
+      const body = document.getElementById("cat-list");
+      body.innerHTML = "";
+
       if (!monthExpenses.length) {
-        body.innerHTML = '<p class="text-xs text-slate-500">No data for this month.</p>';
+        body.innerHTML =
+          '<p class="text-xs text-slate-500">No data for this month.</p>';
         return;
       }
+
       const totals = {};
       let monthTotal = 0;
-      monthExpenses.forEach(e => {
-        const cat = e.category || 'OTHERS';
+
+      monthExpenses.forEach((e) => {
+        const cat = e.category || "OTHERS";
         totals[cat] = (totals[cat] || 0) + e.amount;
         monthTotal += e.amount;
       });
+
       const entries = Object.entries(totals).sort((a, b) => b[1] - a[1]);
       const max = entries[0] ? entries[0][1] : 1;
+
       entries.forEach(([cat, amt]) => {
         const widthPct = (amt / max) * 90;
-        const share = monthTotal ? Math.round((amt / monthTotal) * 100) : 0;
-        const row = document.createElement('div');
-        row.className = 'text-[11px]';
+        const share = monthTotal
+          ? Math.round((amt / monthTotal) * 100)
+          : 0;
+
+        const row = document.createElement("div");
+        row.className = "text-[11px]";
+
         row.innerHTML = `
           <div class="flex justify-between mb-0.5">
             <span class="font-semibold text-slate-800">${cat} (${share}%)</span>
           </div>
           <div class="w-full bg-slate-200 h-4 rounded-md overflow-hidden">
             <div class="h-4 bg-indigo-500 rounded-md relative" style="width:${widthPct}%">
-              <span class="absolute right-1 top-1/2 -translate-y-1/2 text-[10px] text-white font-semibold">₹${amt.toLocaleString('en-IN')}</span>
+              <span class="absolute right-1 top-1/2 -translate-y-1/2 text-[10px] text-white font-semibold">
+                ₹${amt.toLocaleString("en-IN")}
+              </span>
             </div>
           </div>
         `;
+
         body.appendChild(row);
       });
     }
 
+    // === RECENT TRANSACTIONS =====================
+
     function renderTransactions(monthExpenses) {
-      const tbody = document.getElementById('tx-table-body');
-      tbody.innerHTML = '';
+      const tbody = document.getElementById("tx-table-body");
+      tbody.innerHTML = "";
+
       if (!monthExpenses.length) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td colspan="4" class="text-center text-xs text-slate-500 py-2">No expenses this month.</td>`;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td colspan="4" class="text-center text-xs text-slate-500 py-2">
+            No expenses this month.
+          </td>`;
         tbody.appendChild(tr);
         return;
       }
-      const sorted = [...monthExpenses].sort((a, b) => new Date(b.dateISO || b.date) - new Date(a.dateISO || a.date));
-      sorted.forEach(e => {
-        const tr = document.createElement('tr');
+
+      const sorted = [...monthExpenses].sort(
+        (a, b) =>
+          new Date(b.dateISO || b.date) -
+          new Date(a.dateISO || a.date)
+      );
+
+      sorted.forEach((e) => {
+        const tr = document.createElement("tr");
         const d = new Date(e.dateISO || e.date);
-        const dateLabel = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+        const dateLabel = `${d.getDate()}/${
+          d.getMonth() + 1
+        }/${d.getFullYear()}`;
+
         tr.innerHTML = `
           <td class="pr-2 whitespace-nowrap">${dateLabel}</td>
           <td class="pr-2 truncate max-w-[120px]">${e.details}</td>
           <td class="pr-2 whitespace-nowrap">${e.enteredBy}</td>
-          <td class="pr-2 text-right whitespace-nowrap">₹${e.amount.toLocaleString('en-IN')}</td>
+          <td class="pr-2 text-right whitespace-nowrap">
+            ₹${e.amount.toLocaleString("en-IN")}
+          </td>
         `;
+
         tbody.appendChild(tr);
       });
     }
 
+    // === CONTRIBUTION ============================
+
     function renderContribution(monthExpenses) {
-      const wrap = document.getElementById('contri-bar-wrapper');
-      wrap.innerHTML = '';
-      let sunny = 0, deepal = 0;
-      monthExpenses.forEach(e => {
-        if (e.enteredBy === 'Sunny') sunny += e.amount;
-        if (e.enteredBy === 'Deepal') deepal += e.amount;
+      const wrap = document.getElementById("contri-bar-wrapper");
+      wrap.innerHTML = "";
+
+      let sunny = 0;
+      let deepal = 0;
+
+      monthExpenses.forEach((e) => {
+        if (e.enteredBy === "Sunny") sunny += e.amount;
+        if (e.enteredBy === "Deepal") deepal += e.amount;
       });
+
       const total = sunny + deepal;
+
       if (!total) {
-        wrap.innerHTML = '<div class="w-full text-center text-xs text-slate-500 py-1">No data</div>';
+        wrap.innerHTML =
+          '<div class="w-full text-center text-xs text-slate-500 py-1">No data</div>';
         return;
       }
+
       const sunnyPct = (sunny / total) * 100;
       const deepalPct = 100 - sunnyPct;
-      const sunnyDiv = document.createElement('div');
-      sunnyDiv.className = 'h-full bg-red-500 flex items-center justify-center text-[10px] text-white font-semibold';
-      sunnyDiv.style.width = sunnyPct + '%';
-      sunnyDiv.textContent = Math.round(sunnyPct) + '%';
-      const deepalDiv = document.createElement('div');
-      deepalDiv.className = 'h-full bg-emerald-500 flex items-center justify-center text-[10px] text-white font-semibold';
-      deepalDiv.style.width = deepalPct + '%';
-      deepalDiv.textContent = Math.round(deepalPct) + '%';
+
+      const sunnyDiv = document.createElement("div");
+      sunnyDiv.className =
+        "h-full bg-red-500 flex items-center justify-center text-[10px] text-white font-semibold";
+      sunnyDiv.style.width = sunnyPct + "%";
+      sunnyDiv.textContent = Math.round(sunnyPct) + "%";
+
+      const deepalDiv = document.createElement("div");
+      deepalDiv.className =
+        "h-full bg-emerald-500 flex items-center justify-center text-[10px] text-white font-semibold";
+      deepalDiv.style.width = deepalPct + "%";
+      deepalDiv.textContent = Math.round(deepalPct) + "%";
+
       wrap.appendChild(sunnyDiv);
       wrap.appendChild(deepalDiv);
     }
 
+    // === HISTORY =================================
+
     function renderHistory(expenses) {
-      const body = document.getElementById('hist-list');
-      body.innerHTML = '';
+      const body = document.getElementById("hist-list");
+      body.innerHTML = "";
+
       if (!expenses.length) {
-        body.innerHTML = '<p class="text-xs text-slate-500">No history yet.</p>';
+        body.innerHTML =
+          '<p class="text-xs text-slate-500">No history yet.</p>';
         return;
       }
+
       const byMonth = {};
-      expenses.forEach(e => {
+      expenses.forEach((e) => {
         const d = new Date(e.dateISO || e.date);
         const key = getCurrentMonthKey(d);
         byMonth[key] = (byMonth[key] || 0) + e.amount;
       });
+
       const nowKey = getCurrentMonthKey(new Date());
-      const entries = Object.entries(byMonth).filter(([k]) => k !== nowKey).sort((a, b) => b[0].localeCompare(a[0]));
+      const entries = Object.entries(byMonth)
+        .filter(([k]) => k !== nowKey)
+        .sort((a, b) => b[0].localeCompare(a[0]));
+
       if (!entries.length) {
-        body.innerHTML = '<p class="text-xs text-slate-500">No previous months.</p>';
+        body.innerHTML =
+          '<p class="text-xs text-slate-500">No previous months.</p>';
         return;
       }
+
       entries.forEach(([key, amt]) => {
-        const [year, month] = key.split('-').map(Number);
+        const [year, month] = key.split("-").map(Number);
         const d = new Date(year, month - 1, 1);
-        const name = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
-        const row = document.createElement('div');
-        row.className = 'flex justify-between';
-        row.innerHTML = `<span>${name}</span><span class="font-semibold text-indigo-700">₹${amt.toLocaleString('en-IN')}</span>`;
+        const name = d.toLocaleString("en-US", {
+          month: "long",
+          year: "numeric",
+        });
+
+        const row = document.createElement("div");
+        row.className = "flex justify-between";
+        row.innerHTML = `
+          <span>${name}</span>
+          <span class="font-semibold text-indigo-700">
+            ₹${amt.toLocaleString("en-IN")}
+          </span>
+        `;
         body.appendChild(row);
       });
     }
+
+    // === COLLAPSIBLES & FILTERS ==================
 
     function setupCollapsibles() {
       function hook(idHeader, idArrow, idBody, startClosed = true) {
         const header = document.getElementById(idHeader);
         const arrow = document.getElementById(idArrow);
         const body = document.getElementById(idBody);
+
         if (startClosed) {
-          body.classList.add('hidden');
+          body.classList.add("hidden");
         }
-        header.addEventListener('click', () => {
-          const closed = body.classList.contains('hidden');
+
+        header.addEventListener("click", () => {
+          const closed = body.classList.contains("hidden");
           if (closed) {
-            body.classList.remove('hidden');
-            arrow.classList.add('open');
+            body.classList.remove("hidden");
+            arrow.classList.add("open");
           } else {
-            body.classList.add('hidden');
-            arrow.classList.remove('open');
+            body.classList.add("hidden");
+            arrow.classList.remove("open");
           }
         });
       }
-      hook('cat-header', 'cat-arrow', 'cat-body', true);
-      hook('tx-header', 'tx-arrow', 'tx-body', true);
-      hook('hist-header', 'hist-arrow', 'hist-body', true);
-      hook('filter-header', 'filter-arrow', 'filter-body', true);
+
+      hook("cat-header", "cat-arrow", "cat-body", true);
+      hook("tx-header", "tx-arrow", "tx-body", true);
+      hook("hist-header", "hist-arrow", "hist-body", true);
+      hook("filter-header", "filter-arrow", "filter-body", true);
     }
 
     function populateCategoryFilter(expenses) {
-      const sel = document.getElementById('filter-category');
+      const sel = document.getElementById("filter-category");
       const set = new Set();
-      expenses.forEach(e => { if (e.category) set.add(e.category); });
-      sel.querySelectorAll('option:not([value="all"])').forEach(o => o.remove());
-      Array.from(set).sort().forEach(cat => {
-        const opt = document.createElement('option');
-        opt.value = cat;
-        opt.textContent = cat;
-        sel.appendChild(opt);
+
+      expenses.forEach((e) => {
+        if (e.category) set.add(e.category);
       });
+
+      // Remove old options except "all"
+      sel
+        .querySelectorAll('option:not([value="all"])')
+        .forEach((o) => o.remove());
+
+      Array.from(set)
+        .sort()
+        .forEach((cat) => {
+          const opt = document.createElement("option");
+          opt.value = cat;
+          opt.textContent = cat;
+          sel.appendChild(opt);
+        });
     }
 
     function applyFilters() {
-      const fromVal = document.getElementById('filter-from').value;
-      const toVal = document.getElementById('filter-to').value;
-      const cat = document.getElementById('filter-category').value;
-      const person = document.getElementById('filter-person').value;
-      const min = Number(document.getElementById('filter-min').value || 0);
-      return ALL_EXPENSES.filter(e => {
+      const fromVal = document.getElementById("filter-from").value;
+      const toVal = document.getElementById("filter-to").value;
+      const cat = document.getElementById("filter-category").value;
+      const person = document.getElementById("filter-person").value;
+      const min = Number(
+        document.getElementById("filter-min").value || 0
+      );
+
+      return ALL_EXPENSES.filter((e) => {
         const d = new Date(e.dateISO || e.date);
+
         if (fromVal) {
-          const from = new Date(fromVal + 'T00:00:00');
+          const from = new Date(fromVal + "T00:00:00");
           if (d < from) return false;
         }
+
         if (toVal) {
-          const to = new Date(toVal + 'T23:59:59');
+          const to = new Date(toVal + "T23:59:59");
           if (d > to) return false;
         }
-        if (cat !== 'all' && e.category !== cat) return false;
-        if (person !== 'all' && e.enteredBy !== person) return false;
+
+        if (cat !== "all" && e.category !== cat) return false;
+        if (person !== "all" && e.enteredBy !== person) return false;
         if (e.amount < min) return false;
+
         return true;
       });
     }
 
+    // === LOAD & INIT =============================
+
     async function loadExpenses() {
       setMonthPill();
+
       let csvText;
       let usedSample = false;
+
       try {
-        const res = await fetch(G_SHEET_URL, { cache: 'no-store' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const res = await fetch(G_SHEET_URL, { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
         csvText = await res.text();
       } catch (err) {
-        console.warn('Failed to fetch Google Sheet, falling back to SAMPLE_CSV', err);
+        console.warn(
+          "Failed to fetch Google Sheet, falling back to SAMPLE_CSV",
+          err
+        );
         csvText = SAMPLE_CSV;
         usedSample = true;
       }
 
       if (usedSample) {
-        const badge = document.getElementById('data-badge');
-        if (badge) badge.classList.remove('hidden');
+        const badge = document.getElementById("data-badge");
+        if (badge) badge.classList.remove("hidden");
       }
 
-      ALL_EXPENSES = parseCSV(csvText).map(e => ({ ...e, dateISO: normalizeDateStr(e.date) }));
+      ALL_EXPENSES = parseCSV(csvText).map((e) => ({
+        ...e,
+        dateISO: normalizeDateStr(e.date),
+      }));
     }
 
     async function init() {
       await loadExpenses();
+
       populateCategoryFilter(ALL_EXPENSES);
+
       const filtered = applyFilters();
       const monthExpenses = filterCurrentMonth(filtered);
+
       renderSummary(monthExpenses);
       renderBurn(monthExpenses);
       renderTrend(filtered);
@@ -545,18 +856,23 @@
       renderTransactions(monthExpenses);
       renderContribution(monthExpenses);
       renderHistory(filtered);
+
       setupCollapsibles();
-      document.getElementById('filter-apply').addEventListener('click', () => {
-        const filteredAgain = applyFilters();
-        const monthAgain = filterCurrentMonth(filteredAgain);
-        renderSummary(monthAgain);
-        renderBurn(monthAgain);
-        renderTrend(filteredAgain);
-        renderCategories(monthAgain);
-        renderTransactions(monthAgain);
-        renderContribution(monthAgain);
-        renderHistory(filteredAgain);
-      });
+
+      document
+        .getElementById("filter-apply")
+        .addEventListener("click", () => {
+          const filteredAgain = applyFilters();
+          const monthAgain = filterCurrentMonth(filteredAgain);
+
+          renderSummary(monthAgain);
+          renderBurn(monthAgain);
+          renderTrend(filteredAgain);
+          renderCategories(monthAgain);
+          renderTransactions(monthAgain);
+          renderContribution(monthAgain);
+          renderHistory(filteredAgain);
+        });
     }
 
     init();
